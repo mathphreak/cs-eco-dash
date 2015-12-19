@@ -1,5 +1,7 @@
 {
-  "private": true,
+  "name": "cs-eco-dash",
+  "description": "A Counter-Strike: Global Offensive economy dashboard",
+  "version": "0.0.0-semantic",
   "engines": {
     "node": ">=0.12.0"
   },
@@ -25,7 +27,8 @@
     "gulp-useref": "^1.1.1",
     "main-bower-files": "^2.5.0",
     "opn": "^1.0.1",
-    "wiredep": "^2.2.2"
+    "wiredep": "^2.2.2",
+    "semantic-release": "^4.3.5"
   },
   "eslintConfig": {
     "env": {
@@ -43,5 +46,12 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mathphreak/cs-eco-dash.git"
+  },
+  "scripts": {
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   }
 }
