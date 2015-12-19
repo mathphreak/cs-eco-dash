@@ -1,3 +1,19 @@
+#[macro_use] extern crate nickel;
+
+use nickel::Nickel;
+
 fn main() {
-    println!("Hello, world!");
+    let mut server = Nickel::new();
+
+    server.utilize(router! {
+        get "**" => |_req, _res| {
+            "Hello world!"
+        }
+        post "**" => |_req, _res| {
+            println!("Got a POST request! Woohoo!");
+            "Thanks"
+        }
+    });
+
+    server.listen("127.0.0.1:3000");
 }

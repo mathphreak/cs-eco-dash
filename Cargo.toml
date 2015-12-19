@@ -1,5 +1,9 @@
 [package]
 
 name = "cs-eco-dash"
-version = "0.0.1"
+version = "0.0.2"
 authors = [ "Matt Horn <mathphreak@gmail.com>" ]
+
+[dependencies]
+
+nickel="*"
