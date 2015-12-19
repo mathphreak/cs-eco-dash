@@ -80,7 +80,7 @@ fn main() {
         let mut data = HashMap::new();
         let current_player_state = current_player_state2.lock().unwrap();
         data.insert("money", (*current_player_state).money);
-        return response.render("assets/index.tpl", &data)
+        return response.render("assets/index.html.hbs", &data)
     });
 
     server.utilize(StaticFilesHandler::new("assets/vendor/"));
