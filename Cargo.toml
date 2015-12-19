@@ -7,3 +7,4 @@ authors = [ "Matt Horn <mathphreak@gmail.com>" ]
 [dependencies]
 
 nickel="*"
+rustc-serialize="*"
