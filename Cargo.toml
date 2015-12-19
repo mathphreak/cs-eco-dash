@@ -1,0 +1,5 @@
+[package]
+
+name = "cs-eco-dash"
+version = "0.0.1"
+authors = [ "Matt Horn <mathphreak@gmail.com>" ]
