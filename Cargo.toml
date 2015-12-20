@@ -9,3 +9,4 @@ authors = [ "Matt Horn <mathphreak@gmail.com>" ]
 nickel="*"
 rustc-serialize="*"
 time="*"
+crc="*"

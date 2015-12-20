@@ -1,11 +1,13 @@
 extern crate nickel;
 extern crate time;
+extern crate crc;
 
 use nickel::{Middleware, Request, Response, MiddlewareResult};
 use rustc_serialize::json;
 use std::fs;
 use std::sync::{Arc, Mutex};
 use std::io::Read;
+use crc::crc32;
 
 static CSGO_CFG_PATH: &'static str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\csgo\\cfg";
 
@@ -67,7 +69,11 @@ impl TargetVersion {
             return self.last_result.clone();
         } else {
             self.last_check = time::now();
-            self.last_result = "1".to_string();
+            let mut file = fs::File::open("config/gsi.cfg").unwrap();
+            let mut buffer = Vec::new();
+            file.read_to_end(&mut buffer).unwrap();
+            let checksum = crc32::checksum_ieee(buffer.into_boxed_slice().as_ref());
+            self.last_result = format!("{:x}", checksum);
             return self.last_result.clone();
         }
     }

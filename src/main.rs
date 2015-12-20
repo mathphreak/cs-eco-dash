@@ -1,6 +1,7 @@
 #[macro_use] extern crate nickel;
 extern crate rustc_serialize;
 extern crate time;
+extern crate crc;
 
 mod gsi;
 
