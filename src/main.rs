@@ -14,9 +14,8 @@ fn main() {
     let gsi_installed = Arc::new(Mutex::new(gsi::InstalledVersion::new()));
     let gsi_target = Arc::new(Mutex::new(gsi::TargetVersion::new()));
     let mut server = Nickel::new();
-    let current_player_state_write = Arc::new(Mutex::new(gsi::State::empty()));
-    let current_player_stat_read = current_player_state_write.clone();
-    let gsi_post_handler = gsi::PostHandler::new(current_player_state_write);
+    let current_player_state = Arc::new(Mutex::new(gsi::State::empty()));
+    let gsi_post_handler = gsi::PostHandler::new(current_player_state.clone());
 
     server.post("/", gsi_post_handler);
 
@@ -28,7 +27,7 @@ fn main() {
 
     server.get("/data.json", middleware! { |_, response|
         let mut data = HashMap::new();
-        let current_player_state = current_player_stat_read.lock().unwrap();
+        let current_player_state = current_player_state.lock().unwrap();
         data.insert("money", (*current_player_state).money.to_string());
         data.insert("gsi_installed", gsi_installed.lock().unwrap().get());
         data.insert("gsi_target", gsi_target.lock().unwrap().get());
