@@ -45,6 +45,7 @@ fn main() {
         smoked: 0
     }));
     let current_player_state2 = current_player_state.clone();
+    let current_player_state3 = current_player_state.clone();
 
     server.post("/", middleware! { |request, response|
         let mut body = String::new();
@@ -83,7 +84,15 @@ fn main() {
         return response.render("assets/index.html.hbs", &data)
     });
 
+    server.get("/data.json", middleware! { |_, response|
+        let mut data = HashMap::new();
+        let current_player_state = current_player_state3.lock().unwrap();
+        data.insert("money", (*current_player_state).money);
+        return response.render("assets/data.json.hbs", &data)
+    });
+
     server.utilize(StaticFilesHandler::new("assets/vendor/"));
+    server.utilize(StaticFilesHandler::new("assets/scripts/"));
 
     server.utilize(router! {
         get "**" => |_req, _res| {
