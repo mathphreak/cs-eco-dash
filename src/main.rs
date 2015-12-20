@@ -20,9 +20,7 @@ fn main() {
     server.post("/", gsi_post_handler);
 
     server.get("/", middleware! { |_, response|
-        let mut data = HashMap::new();
-        data.insert("dummy", "value");
-        return response.render("assets/index.html.hbs", &data)
+        return response.send_file("assets/index.html")
     });
 
     server.get("/data.json", middleware! { |_, response|
