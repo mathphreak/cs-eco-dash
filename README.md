@@ -19,3 +19,9 @@ Point a Web browser to `localhost:3000`, either on a second monitor or in
 the Steam overlay.
 
 Start a game and watch things happen!
+
+# How It Works
+
+Uses Valve's [Game State Integration][] to get data.
+
+[Game State Integration]: https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration
