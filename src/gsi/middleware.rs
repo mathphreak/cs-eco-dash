@@ -81,10 +81,7 @@ impl PostHandler {
     }
 }
 
-pub struct Installer {
-    #[allow(dead_code)]
-    dummy: u8
-}
+pub struct Installer;
 
 impl<D> Middleware<D> for Installer {
     fn invoke<'a, 'server>(&'a self, _request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
@@ -114,8 +111,6 @@ impl<D> Middleware<D> for Installer {
 
 impl Installer {
     pub fn new() -> Installer {
-        Installer {
-            dummy: 0
-        }
+        Installer
     }
 }
