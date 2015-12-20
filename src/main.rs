@@ -16,8 +16,10 @@ fn main() {
     let mut server = Nickel::new();
     let current_player_state = Arc::new(Mutex::new(gsi::State::empty()));
     let gsi_post_handler = gsi::PostHandler::new(current_player_state.clone());
+    let gsi_installer = gsi::Installer::new(gsi_installed.clone());
 
     server.post("/", gsi_post_handler);
+    server.post("/install-gsi", gsi_installer);
 
     server.get("/", middleware! { |_, response|
         return response.send_file("assets/index.html")

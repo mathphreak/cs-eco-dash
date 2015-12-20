@@ -10,6 +10,7 @@ use std::io::Read;
 use crc::crc32;
 
 static CSGO_CFG_PATH: &'static str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\csgo\\cfg";
+static CFG_FILE_PREFIX: &'static str = "gamestate_integration_cs-eco-dash_";
 
 pub struct InstalledVersion {
     last_check: time::Tm,
@@ -35,10 +36,10 @@ impl InstalledVersion {
                     let name = entry.path();
                     let name = name.file_name().unwrap();
                     let name = name.to_str().unwrap();
-                    if name.starts_with("gamestate_integration_cs-eco-dash_") {
+                    if name.starts_with(CFG_FILE_PREFIX) {
                         println!("Found a config file: {}", name);
                         let result = name
-                            .replace("gamestate_integration_cs-eco-dash_", "")
+                            .replace(CFG_FILE_PREFIX, "")
                             .replace(".cfg", "");
                         self.last_result = result;
                         return self.last_result.clone();
@@ -149,6 +150,32 @@ impl PostHandler {
     pub fn new(state_mutex: Arc<Mutex<State>>) -> PostHandler {
         PostHandler {
             state_mutex: state_mutex
+        }
+    }
+}
+
+pub struct Installer {
+    ver_mutex: Arc<Mutex<InstalledVersion>>,
+}
+
+impl<D> Middleware<D> for Installer {
+    fn invoke<'a, 'server>(&'a self, _request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
+            -> MiddlewareResult<'a, D> {
+        let inst = self.ver_mutex.lock().unwrap().get();
+        let mut path = CSGO_CFG_PATH.to_string().clone();
+        path.push_str(&CFG_FILE_PREFIX);
+        path.push_str(&inst);
+        path.push_str(".cfg");
+        println!("Deleting {}", path);
+        // fs::remove_file(path);
+        return response.send("It worked");
+    }
+}
+
+impl Installer {
+    pub fn new(inst: Arc<Mutex<InstalledVersion>>) -> Installer {
+        Installer {
+            ver_mutex: inst
         }
     }
 }
