@@ -9,8 +9,8 @@ use std::sync::{Arc, Mutex};
 use std::io::Read;
 use crc::crc32;
 
-static CSGO_CFG_PATH: &'static str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\csgo\\cfg";
-static CFG_FILE_PREFIX: &'static str = "gamestate_integration_cs-eco-dash_";
+const CSGO_CFG_PATH: &'static str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\csgo\\cfg";
+const CFG_FILE_PREFIX: &'static str = "gamestate_integration_cs-eco-dash_";
 
 pub struct InstalledVersion {
     last_check: time::Tm,
@@ -155,27 +155,40 @@ impl PostHandler {
 }
 
 pub struct Installer {
-    ver_mutex: Arc<Mutex<InstalledVersion>>,
+    #[allow(dead_code)]
+    dummy: u8
 }
 
 impl<D> Middleware<D> for Installer {
     fn invoke<'a, 'server>(&'a self, _request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
             -> MiddlewareResult<'a, D> {
-        let inst = self.ver_mutex.lock().unwrap().get();
-        let mut path = CSGO_CFG_PATH.to_string().clone();
-        path.push_str(&CFG_FILE_PREFIX);
-        path.push_str(&inst);
-        path.push_str(".cfg");
-        println!("Deleting {}", path);
-        // fs::remove_file(path);
+        let inst = InstalledVersion::new().get();
+        let target = TargetVersion::new().get();
+        if inst != "NONE" {
+            let mut del_path = CSGO_CFG_PATH.to_string().clone();
+            del_path.push_str("/");
+            del_path.push_str(&CFG_FILE_PREFIX);
+            del_path.push_str(&inst);
+            del_path.push_str(".cfg");
+            println!("Deleting {}", del_path);
+            fs::remove_file(del_path).unwrap();
+        }
+        let src_path = "config/gsi.cfg";
+        let mut dst_path = CSGO_CFG_PATH.to_string().clone();
+        dst_path.push_str("/");
+        dst_path.push_str(&CFG_FILE_PREFIX);
+        dst_path.push_str(&target);
+        dst_path.push_str(".cfg");
+        println!("Copying {} to {}", src_path, dst_path);
+        fs::copy(src_path, dst_path).unwrap();
         return response.send("It worked");
     }
 }
 
 impl Installer {
-    pub fn new(inst: Arc<Mutex<InstalledVersion>>) -> Installer {
+    pub fn new() -> Installer {
         Installer {
-            ver_mutex: inst
+            dummy: 0
         }
     }
 }
