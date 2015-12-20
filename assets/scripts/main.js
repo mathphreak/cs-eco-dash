@@ -8,6 +8,10 @@ function update() {
     } else {
       $("#gsi-install-config").show();
     }
+    $("#recommendations").html("");
+    data.recommendations.forEach(function(rec) {
+      $("#recommendations").append($("<li>" + rec + "</li>"));
+    })
   })
 }
 

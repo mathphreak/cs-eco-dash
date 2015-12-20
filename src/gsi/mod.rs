@@ -6,6 +6,7 @@ use nickel::{Router, HttpRouter};
 use std::sync::{Arc, Mutex};
 
 pub use self::middleware::State;
+pub use self::version::Versions;
 
 pub mod version;
 mod middleware;

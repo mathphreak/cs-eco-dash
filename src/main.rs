@@ -4,31 +4,28 @@ extern crate time;
 extern crate crc;
 
 mod gsi;
+mod game;
 
 use nickel::{Nickel, HttpRouter};
-use std::collections::HashMap;
 use nickel::StaticFilesHandler;
 use std::sync::{Arc, Mutex};
+use rustc_serialize::json::ToJson;
 
 fn main() {
-    let gsi_installed = Arc::new(Mutex::new(gsi::version::Installed::new()));
-    let gsi_target = Arc::new(Mutex::new(gsi::version::Target::new()));
     let mut server = Nickel::new();
-    let current_player_state = Arc::new(Mutex::new(gsi::State::empty()));
+    let current_gsi_state = Arc::new(Mutex::new(gsi::State::empty()));
+    let current_player_state = Arc::new(Mutex::new(game::State::new(current_gsi_state.clone())));
 
-    server.utilize(gsi::router(current_player_state.clone()));
+    server.utilize(gsi::router(current_gsi_state.clone()));
 
     server.get("/", middleware! { |_, response|
         return response.send_file("assets/index.html")
     });
 
     server.get("/data.json", middleware! { |_, response|
-        let mut data = HashMap::new();
-        let current_player_state = current_player_state.lock().unwrap();
-        data.insert("money", (*current_player_state).money.to_string());
-        data.insert("gsi_installed", gsi_installed.lock().unwrap().get());
-        data.insert("gsi_target", gsi_target.lock().unwrap().get());
-        return response.render("assets/data.json.hbs", &data)
+        let mut current_player_state = current_player_state.lock().unwrap();
+        current_player_state.update();
+        return response.send((*current_player_state).to_json())
     });
 
     server.utilize(StaticFilesHandler::new("assets/vendor/"));

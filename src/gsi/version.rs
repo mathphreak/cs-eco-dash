@@ -1,5 +1,7 @@
 extern crate time;
 
+use rustc_serialize::json::{ToJson, Json};
+use std::collections::BTreeMap;
 use std::fs;
 use super::paths;
 use crc::crc32;
@@ -70,5 +72,33 @@ impl Target {
             self.last_result = format!("{:x}", checksum);
             return self.last_result.clone();
         }
+    }
+}
+
+pub struct Versions {
+    pub installed: Installed,
+    pub target: Target
+}
+
+impl Versions {
+    pub fn new() -> Versions {
+        Versions {
+            installed: Installed::new(),
+            target: Target::new()
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.installed.get();
+        self.target.get();
+    }
+}
+
+impl ToJson for Versions {
+    fn to_json(&self) -> Json {
+        let mut d = BTreeMap::new();
+        d.insert("installed".to_string(), self.installed.last_result.to_json());
+        d.insert("target".to_string(), self.target.last_result.to_json());
+        Json::Object(d)
     }
 }
