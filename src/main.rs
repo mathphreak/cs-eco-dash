@@ -1,104 +1,41 @@
 #[macro_use] extern crate nickel;
 extern crate rustc_serialize;
+extern crate time;
+
+mod gsi;
 
 use nickel::{Nickel, HttpRouter};
-use std::io::Read;
 use std::collections::HashMap;
-use rustc_serialize::json;
 use nickel::StaticFilesHandler;
 use std::sync::{Arc, Mutex};
 
-#[derive(RustcEncodable, RustcDecodable, Copy, Clone)]
-struct State {
-    armor: u32,
-    burning: u32,
-    flashed: u32,
-    health: u32,
-    helmet: bool,
-    money: u32,
-    round_killhs: u32,
-    round_kills: u32,
-    smoked: u32
-}
-
-#[derive(RustcEncodable, RustcDecodable, Copy, Clone)]
-struct Player {
-    state: State
-}
-
-#[derive(RustcEncodable, RustcDecodable, Copy, Clone)]
-struct Message {
-    player: Player
-}
-
 fn main() {
+    let gsi_installed = Arc::new(Mutex::new(gsi::InstalledVersion::new()));
+    let gsi_target = Arc::new(Mutex::new(gsi::TargetVersion::new()));
     let mut server = Nickel::new();
-    let current_player_state = Arc::new(Mutex::new(State{
-        armor: 0,
-        burning: 0,
-        flashed: 0,
-        health: 0,
-        helmet: false,
-        money: 0,
-        round_killhs: 0,
-        round_kills: 0,
-        smoked: 0
-    }));
-    let current_player_state2 = current_player_state.clone();
-    let current_player_state3 = current_player_state.clone();
+    let current_player_state_write = Arc::new(Mutex::new(gsi::State::empty()));
+    let current_player_stat_read = current_player_state_write.clone();
+    let gsi_post_handler = gsi::PostHandler::new(current_player_state_write);
 
-    server.post("/", middleware! { |request, response|
-        let mut body = String::new();
-        request.origin.read_to_string(&mut body).unwrap();
-        let data: Message = match json::decode(&body) {
-            Ok(data) => data,
-            Err(_) => {
-                println!("got bad JSON: {}", body);
-                Message{
-                    player: Player{
-                        state: State{
-                            armor: 0,
-                            burning: 0,
-                            flashed: 0,
-                            health: 0,
-                            helmet: false,
-                            money: 0,
-                            round_killhs: 0,
-                            round_kills: 0,
-                            smoked: 0
-                        }
-                    }
-                }
-            },
-        };
-        let mut current_player_state = current_player_state.lock().unwrap();
-        *current_player_state = data.player.state;
-        println!("You have ${}", data.player.state.money);
-        "Thanks"
-    });
+    server.post("/", gsi_post_handler);
 
     server.get("/", middleware! { |_, response|
         let mut data = HashMap::new();
-        let current_player_state = current_player_state2.lock().unwrap();
-        data.insert("money", (*current_player_state).money);
+        data.insert("dummy", "value");
         return response.render("assets/index.html.hbs", &data)
     });
 
     server.get("/data.json", middleware! { |_, response|
         let mut data = HashMap::new();
-        let current_player_state = current_player_state3.lock().unwrap();
-        data.insert("money", (*current_player_state).money);
+        let current_player_state = current_player_stat_read.lock().unwrap();
+        data.insert("money", (*current_player_state).money.to_string());
+        data.insert("gsi_installed", gsi_installed.lock().unwrap().get());
+        data.insert("gsi_target", gsi_target.lock().unwrap().get());
         return response.render("assets/data.json.hbs", &data)
     });
 
     server.utilize(StaticFilesHandler::new("assets/vendor/"));
     server.utilize(StaticFilesHandler::new("assets/scripts/"));
-
-    server.utilize(router! {
-        get "**" => |_req, _res| {
-            "Hello world!"
-        }
-    });
 
     server.listen("127.0.0.1:3000");
 }
