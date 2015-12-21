@@ -18,18 +18,13 @@ fn main() {
 
     server.utilize(gsi::router(current_gsi_state.clone()));
 
-    server.get("/", middleware! { |_, response|
-        return response.send_file("assets/index.html")
-    });
-
     server.get("/data.json", middleware! { |_, response|
         let mut current_player_state = current_player_state.lock().unwrap();
         current_player_state.update();
         return response.send((*current_player_state).to_json())
     });
 
-    server.utilize(StaticFilesHandler::new("assets/vendor/"));
-    server.utilize(StaticFilesHandler::new("assets/scripts/"));
+    server.utilize(StaticFilesHandler::new("assets/"));
 
     server.listen("127.0.0.1:3000");
 }
