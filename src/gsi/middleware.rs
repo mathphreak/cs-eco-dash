@@ -7,7 +7,7 @@ use super::paths;
 use std::fs;
 use std::io::Read;
 
-#[derive(RustcEncodable, RustcDecodable)]
+#[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct State {
     armor: u32,
     burning: u32,
@@ -49,16 +49,18 @@ impl Provider {
     }
 }
 
-#[derive(RustcEncodable, RustcDecodable)]
-struct Player {
+#[derive(RustcEncodable, RustcDecodable, Clone)]
+pub struct Player {
     steamid: String,
-    state: State
+    pub team: String,
+    pub state: State
 }
 
 impl Player {
-    fn empty() -> Player {
+    pub fn empty() -> Player {
         Player{
             steamid: "".to_string(),
+            team: "CT".to_string(),
             state: State::empty()
         }
     }
@@ -80,7 +82,7 @@ impl Message {
 }
 
 pub struct PostHandler {
-    state_mutex: Arc<Mutex<State>>
+    player_mutex: Arc<Mutex<Player>>
 }
 
 impl<D> Middleware<D> for PostHandler {
@@ -97,8 +99,8 @@ impl<D> Middleware<D> for PostHandler {
             },
         };
         if data.provider.steamid == data.player.steamid {
-            let mut current_player_state = self.state_mutex.lock().unwrap();
-            *current_player_state = data.player.state;
+            let mut current_player = self.player_mutex.lock().unwrap();
+            *current_player = data.player;
         } else {
             println!("Ignoring data from wrong player");
         }
@@ -107,9 +109,9 @@ impl<D> Middleware<D> for PostHandler {
 }
 
 impl PostHandler {
-    pub fn new(state_mutex: Arc<Mutex<State>>) -> PostHandler {
+    pub fn new(player_mutex: Arc<Mutex<Player>>) -> PostHandler {
         PostHandler {
-            state_mutex: state_mutex
+            player_mutex: player_mutex
         }
     }
 }
