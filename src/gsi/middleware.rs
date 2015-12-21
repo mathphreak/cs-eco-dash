@@ -7,7 +7,7 @@ use super::paths;
 use std::fs;
 use std::io::Read;
 
-#[derive(RustcEncodable, RustcDecodable, Copy, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
 pub struct State {
     armor: u32,
     burning: u32,
@@ -36,14 +36,47 @@ impl State {
     }
 }
 
-#[derive(RustcEncodable, RustcDecodable, Copy, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+struct Provider {
+    steamid: String
+}
+
+impl Provider {
+    fn empty() -> Provider {
+        Provider{
+            steamid: "".to_string()
+        }
+    }
+}
+
+#[derive(RustcEncodable, RustcDecodable)]
 struct Player {
+    steamid: String,
     state: State
 }
 
-#[derive(RustcEncodable, RustcDecodable, Copy, Clone)]
+impl Player {
+    fn empty() -> Player {
+        Player{
+            steamid: "".to_string(),
+            state: State::empty()
+        }
+    }
+}
+
+#[derive(RustcEncodable, RustcDecodable)]
 struct Message {
+    provider: Provider,
     player: Player
+}
+
+impl Message {
+    fn empty() -> Message {
+        Message{
+            provider: Provider::empty(),
+            player: Player::empty()
+        }
+    }
 }
 
 pub struct PostHandler {
@@ -55,20 +88,20 @@ impl<D> Middleware<D> for PostHandler {
             -> MiddlewareResult<'a, D> {
         let mut body = String::new();
         request.origin.read_to_string(&mut body).unwrap();
+        println!("Got JSON: {}", body);
         let data: Message = match json::decode(&body) {
             Ok(data) => data,
             Err(_) => {
-                println!("got bad JSON: {}", body);
-                Message{
-                    player: Player{
-                        state: State::empty()
-                    }
-                }
+                println!("bad JSON: {}", body);
+                Message::empty()
             },
         };
-        let mut current_player_state = self.state_mutex.lock().unwrap();
-        *current_player_state = data.player.state;
-        println!("You have ${}", data.player.state.money);
+        if data.provider.steamid == data.player.steamid {
+            let mut current_player_state = self.state_mutex.lock().unwrap();
+            *current_player_state = data.player.state;
+        } else {
+            println!("Ignoring data from wrong player");
+        }
         return response.send("Thanks");
     }
 }
