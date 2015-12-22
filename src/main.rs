@@ -5,7 +5,6 @@ extern crate crc;
 
 mod gsi;
 mod game;
-mod common;
 
 use nickel::{Nickel, HttpRouter};
 use nickel::StaticFilesHandler;
