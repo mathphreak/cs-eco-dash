@@ -164,28 +164,25 @@ impl Equipment {
             }
         }
 
-        // primary weapon
-        if remaining_money > 4700 {
-            buy!(AWP);
-        } else if remaining_money > 3100 && is_ct {
+        // full buy
+        if is_ct && remaining_money > 5000 {
             buy!(M4A1S);
-        } else if remaining_money > 2700 && is_t {
+            buy!(P250);
+            buy!(VestHelmet);
+            buy!(Defuse);
+        } else if is_t && remaining_money > 5000 {
             buy!(AK47);
-        }
-
-        // pistol
-        if remaining_money > 850 {
-            buy!(R8);
-        } else if is_ct {
-            buy!(USPS);
-        } else if is_t {
-            buy!(Glock);
+            buy!(Tec9);
+            buy!(VestHelmet);
+        } else {
+            // eco
+            if remaining_money > 1700 {
+                buy!(MP7);
+            }
         }
 
         // equipment
-        if remaining_money > 1000 {
-            buy!(VestHelmet);
-        } else if remaining_money > 650 {
+        if remaining_money > 650 {
             buy!(Vest);
         }
         if remaining_money > 400 && is_ct {
