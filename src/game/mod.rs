@@ -180,32 +180,58 @@ impl State {
         use self::Equipment::*;
         let mut result = vec![];
         let mut remaining_money = self.money;
+        let is_ct = self.team == "CT";
+        let is_t = self.team == "T";
 
         macro_rules! buy {
             ( $eqp:expr ) => {
-                {
-                    result.push($eqp);
-                    remaining_money -= $eqp.cost();
-                }
+                result.push($eqp);
+                remaining_money -= $eqp.cost();
             }
         }
 
         // primary weapon
         if remaining_money > 4700 {
             buy!(AWP);
-        } else if remaining_money > 3100 && self.team == "CT" {
+        } else if remaining_money > 3100 && is_ct {
             buy!(M4A1S);
-        } else if remaining_money > 2700 && self.team == "T" {
+        } else if remaining_money > 2700 && is_t {
             buy!(AK47);
         }
 
         // pistol
         if remaining_money > 850 {
             buy!(R8);
-        } else if self.team == "CT" {
+        } else if is_ct {
             buy!(USPS);
-        } else if self.team == "T" {
+        } else if is_t {
             buy!(Glock);
+        }
+
+        // equipment
+        if remaining_money > 1000 {
+            buy!(VestHelmet);
+        } else if remaining_money > 650 {
+            buy!(Vest);
+        }
+        if remaining_money > 400 && is_ct {
+            buy!(Defuse);
+        }
+
+        // grenades
+        if remaining_money > 300 {
+            buy!(Smoke);
+        }
+        if remaining_money > 200 {
+            buy!(Flash);
+        }
+        if remaining_money > 200 {
+            buy!(Flash);
+        }
+        if remaining_money > 400 && is_t {
+            buy!(Molotov);
+        } else if remaining_money > 600 && is_ct {
+            buy!(Incendiary);
         }
 
         result

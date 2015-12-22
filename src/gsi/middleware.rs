@@ -60,7 +60,7 @@ impl Player {
     pub fn empty() -> Player {
         Player{
             steamid: "".to_string(),
-            team: "CT".to_string(),
+            team: "".to_string(),
             state: State::empty()
         }
     }
