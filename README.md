@@ -9,14 +9,15 @@ This is not currently useful, so there are no binary releases.
 
 ```shell
 git clone https://github.com/mathphreak/cs-eco-dash.git
-cp config/gsi.cfg $CSGO_DIR/cfg/gamestate_integration_csecodash.cfg
 cargo build --release
 ```
 
 Then run `target/release/cs-eco-dash`.
 
-Point a Web browser to `localhost:3000`, either on a second monitor or in
-the Steam overlay.
+Point a Web browser to `localhost:3000` and press the "Install/Update" button if
+it's visible.
+
+Launch CS:GO. Keep that Web browser open in a second monitor, or close it and open `localhost:3000` in the Steam overlay.
 
 Start a game and watch things happen!
 
