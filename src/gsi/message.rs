@@ -11,22 +11,6 @@ pub struct State {
     smoked: u32
 }
 
-impl State {
-    pub fn empty() -> State {
-        State{
-            armor: 0,
-            burning: 0,
-            flashed: 0,
-            health: 0,
-            helmet: false,
-            money: 0,
-            round_killhs: 0,
-            round_kills: 0,
-            smoked: 0
-        }
-    }
-}
-
 #[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct Provider {
     pub steamid: String
@@ -41,44 +25,70 @@ impl Provider {
 }
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]
+#[allow(non_camel_case_types)]
+pub enum Activity {
+    menu,
+    playing,
+    textinput,
+}
+
+#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(PartialEq)]
+#[allow(non_camel_case_types)]
+pub enum Team {
+    CT,
+    T,
+}
+
+#[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct Player {
     pub steamid: String,
-    pub team: String,
-    pub state: State
+    pub team: Option<Team>,
+    pub activity: Option<Activity>,
+    pub state: Option<State>,
 }
 
 impl Player {
     pub fn empty() -> Player {
         Player{
             steamid: "".to_string(),
-            team: "".to_string(),
-            state: State::empty()
+            team: None,
+            activity: None,
+            state: None
         }
     }
 }
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]
-pub struct Round {
-    pub phase: String,
-    pub bomb: Option<String>,
-    pub win_team: Option<String>,
+#[derive(PartialEq)]
+#[allow(non_camel_case_types)]
+pub enum Phase {
+    over,
+    live,
+    freezetime,
 }
 
-impl Round {
-    pub fn empty() -> Round {
-        Round {
-            phase: "".to_string(),
-            bomb: None,
-            win_team: None,
-        }
-    }
+#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(PartialEq)]
+#[allow(non_camel_case_types)]
+pub enum Bomb {
+    planted,
+    exploded,
+    defused,
+}
+
+#[derive(RustcEncodable, RustcDecodable, Clone)]
+pub struct Round {
+    pub phase: Phase,
+    pub bomb: Option<Bomb>,
+    pub win_team: Option<Team>,
 }
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct Message {
     pub provider: Provider,
     pub player: Player,
-    pub round: Round,
+    pub round: Option<Round>,
 }
 
 impl Message {
@@ -86,7 +96,7 @@ impl Message {
         Message{
             provider: Provider::empty(),
             player: Player::empty(),
-            round: Round::empty(),
+            round: None,
         }
     }
 }

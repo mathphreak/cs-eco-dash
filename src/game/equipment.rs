@@ -1,4 +1,5 @@
 use rustc_serialize::json::{ToJson, Json};
+use super::super::gsi::message;
 
 #[allow(dead_code)]
 pub enum Equipment {
@@ -149,12 +150,12 @@ impl Equipment {
     }
 
     #[allow(unused_assignments)]
-    pub fn recommended(money: u32, team: &String) -> Vec<Equipment> {
+    pub fn recommended(money: u32, team: &message::Team) -> Vec<Equipment> {
         use self::Equipment::*;
         let mut result = vec![];
         let mut remaining_money = money;
-        let is_ct = team == "CT";
-        let is_t = team == "T";
+        let is_ct = *team == message::Team::CT;
+        let is_t = *team == message::Team::T;
 
         macro_rules! buy {
             ( $eqp:expr ) => {

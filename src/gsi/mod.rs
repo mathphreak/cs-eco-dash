@@ -5,12 +5,11 @@ extern crate crc;
 use nickel::{Router, HttpRouter};
 use std::sync::{Arc, Mutex};
 
-pub use self::message::Message;
 pub use self::version::Versions;
 use super::game;
 
 pub mod version;
-mod message;
+pub mod message;
 mod middleware;
 mod paths;
 

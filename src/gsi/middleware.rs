@@ -17,20 +17,20 @@ impl<D> Middleware<D> for PostHandler {
             -> MiddlewareResult<'a, D> {
         let mut body = String::new();
         request.origin.read_to_string(&mut body).unwrap();
-        println!("Got JSON: {}", body);
+        // println!("Got JSON: {}", body);
         let data: message::Message = match json::decode(&body) {
             Ok(data) => data,
-            Err(_) => {
+            Err(err) => {
                 println!("bad JSON: {}", body);
+                println!("cause: {}", err);
                 message::Message::empty()
             },
         };
         if data.provider.steamid == data.player.steamid {
             let mut current_player = self.state_mutex.lock().unwrap();
             (*current_player).update(data);
-        } else {
-            println!("Ignoring data from wrong player");
         }
+        // otherwise, we're spectating and we don't care what happened
         return response.send("Thanks");
     }
 }

@@ -32,7 +32,6 @@ impl Installed {
                     let name = name.file_name().unwrap();
                     let name = name.to_str().unwrap();
                     if name.starts_with(paths::CFG_PREFIX) {
-                        println!("Found a config file: {}", name);
                         let result = name
                             .replace(paths::CFG_PREFIX, "")
                             .replace(".cfg", "");
