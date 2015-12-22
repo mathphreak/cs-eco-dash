@@ -22,6 +22,7 @@ function update() {
     var inGame = data.in_game;
     $("#gsi-install-config").toggle(showInstallConfig);
     $("#csgo-down").toggle(showFail);
+    $("#launch-game").toggle(showFail);
     $("#fail-icons").toggle(showFail);
     $("#out-of-game").toggle(!inGame);
     $("#in-game").toggle(inGame);
