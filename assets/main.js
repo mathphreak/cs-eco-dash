@@ -17,8 +17,10 @@ function update() {
     $("#server-down").hide();
     if (data.up) {
       $("#csgo-down").hide();
+      $("#fail-icons").hide();
     } else {
       $("#csgo-down").show();
+      $("#fail-icons").show();
     }
     if (data.in_game) {
       $("#out-of-game").hide();
@@ -28,6 +30,7 @@ function update() {
       $("#in-game").hide();
     }
   }).fail(function() {
+    $("#fail-icons").show();
     $("#server-down").show();
     $("#csgo-down").hide();
     $("#out-of-game").show();

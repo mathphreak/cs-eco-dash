@@ -52,21 +52,28 @@ impl TakesUpdates<message::Message> for State {
         if let Ok(last_up) = tm_from_unix_timestamp(message.provider.timestamp) {
             self.last_up = last_up;
         }
+        let ref provider = message.provider;
         let ref player = message.player;
-        match player.state {
-            Some(state) => {
-                self.in_game = true;
-                self.money = state.money;
-            },
-            None => {
-                self.reset();
+        if provider.steamid == player.steamid {
+            match player.state {
+                Some(state) => {
+                    self.in_game = true;
+                    self.money = state.money;
+                },
+                None => {
+                    self.reset();
+                }
+            }
+            if let Some(team) = player.team {
+                self.team = Some(team);
             }
         }
-        if let Some(team) = player.team {
-            self.team = Some(team);
-        }
-        if let Some(round) = message.round {
-            if round.phase == message::Phase::over {
+        let added_win_team = message.added;
+        let added_win_team = added_win_team.and_then(|x| x.round);
+        let added_win_team = added_win_team.and_then(|x| x.win_team);
+        let added_win_team = added_win_team.unwrap_or(false);
+        if added_win_team {
+            if let Some(round) = message.round {
                 if let Some(win_team) = round.win_team {
                     if let Some(team) = self.team {
                         self.won_rounds.push(win_team == team);

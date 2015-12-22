@@ -26,11 +26,8 @@ impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates<messa
                 Default::default()
             },
         };
-        if data.provider.steamid == data.player.steamid {
-            let mut current_player = self.state_mutex.lock().unwrap();
-            (*current_player).update(&data);
-        }
-        // otherwise, we're spectating and we don't care what happened
+        let mut current_player = self.state_mutex.lock().unwrap();
+        (*current_player).update(&data);
         return response.send("Thanks");
     }
 }
