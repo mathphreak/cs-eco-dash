@@ -30,6 +30,8 @@ function update() {
   }).fail(function() {
     $("#server-down").show();
     $("#csgo-down").hide();
+    $("#out-of-game").show();
+    $("#in-game").hide();
   })
 }
 

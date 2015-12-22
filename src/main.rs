@@ -21,7 +21,7 @@ fn main() {
 
     server.get("/data.json", middleware! { |_, response|
         let mut game_state = game_state.lock().unwrap();
-        (*game_state).update(());
+        (*game_state).update(&());
         return response.send((*game_state).to_json())
     });
 

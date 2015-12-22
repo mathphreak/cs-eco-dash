@@ -26,10 +26,17 @@ impl State {
             won_rounds: vec![]
         }
     }
+
+    fn reset(&mut self) {
+        self.in_game = false;
+        self.team = None;
+        self.money = 0;
+        self.won_rounds = vec![];
+    }
 }
 
 impl TakesUpdates<()> for State {
-    fn update(&mut self, _: ()) {
+    fn update(&mut self, _: &()) {
         self.gsi.update();
     }
 }
@@ -40,26 +47,29 @@ fn tm_from_unix_timestamp(timestamp: u32) -> Result<time::Tm, time::ParseError> 
 }
 
 impl TakesUpdates<message::Message> for State {
-    fn update(&mut self, message: message::Message) {
+    fn update(&mut self, message: &message::Message) {
         self.gsi.update();
         if let Ok(last_up) = tm_from_unix_timestamp(message.provider.timestamp) {
             self.last_up = last_up;
         }
-        let player = message.clone().player;
-        if let Some(state) = player.clone().state {
-            self.in_game = true;
-            self.money = state.money;
-        } else {
-            self.in_game = false;
+        let ref player = message.player;
+        match player.state {
+            Some(ref state) => {
+                self.in_game = true;
+                self.money = state.money;
+            },
+            None => {
+                self.reset();
+            }
         }
-        if let Some(team) = player.clone().team {
-            self.team = Some(team);
+        if let Some(ref team) = player.team {
+            self.team = Some((*team).clone());
         }
-        if let Some(round) = message.clone().round {
+        if let Some(ref round) = message.round {
             if round.phase == message::Phase::over {
-                if let Some(win_team) = round.win_team {
+                if let Some(ref win_team) = round.win_team {
                     if let Some(ref team) = self.team {
-                        self.won_rounds.push(win_team == *team);
+                        self.won_rounds.push(win_team == team);
                     }
                 }
             }

@@ -1,5 +1,3 @@
-use std::marker;
-
-pub trait TakesUpdates<T> : marker::Send {
-    fn update(&mut self, data: T);
+pub trait TakesUpdates<T> : Send {
+    fn update(&mut self, data: &T);
 }
