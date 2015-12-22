@@ -27,7 +27,7 @@ impl State {
     }
 }
 
-#[derive(RustcEncodable, RustcDecodable)]
+#[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct Provider {
     pub steamid: String
 }
@@ -57,17 +57,36 @@ impl Player {
     }
 }
 
-#[derive(RustcEncodable, RustcDecodable)]
+#[derive(RustcEncodable, RustcDecodable, Clone)]
+pub struct Round {
+    pub phase: String,
+    pub bomb: Option<String>,
+    pub win_team: Option<String>,
+}
+
+impl Round {
+    pub fn empty() -> Round {
+        Round {
+            phase: "".to_string(),
+            bomb: None,
+            win_team: None,
+        }
+    }
+}
+
+#[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct Message {
     pub provider: Provider,
-    pub player: Player
+    pub player: Player,
+    pub round: Round,
 }
 
 impl Message {
     pub fn empty() -> Message {
         Message{
             provider: Provider::empty(),
-            player: Player::empty()
+            player: Player::empty(),
+            round: Round::empty(),
         }
     }
 }
