@@ -4,11 +4,12 @@ use rustc_serialize::json;
 use super::version;
 use super::paths;
 use super::message;
+use super::super::game;
 use std::fs;
 use std::io::Read;
 
 pub struct PostHandler {
-    player_mutex: Arc<Mutex<message::Player>>
+    state_mutex: Arc<Mutex<game::State>>
 }
 
 impl<D> Middleware<D> for PostHandler {
@@ -25,8 +26,8 @@ impl<D> Middleware<D> for PostHandler {
             },
         };
         if data.provider.steamid == data.player.steamid {
-            let mut current_player = self.player_mutex.lock().unwrap();
-            *current_player = data.player;
+            let mut current_player = self.state_mutex.lock().unwrap();
+            (*current_player).update(data);
         } else {
             println!("Ignoring data from wrong player");
         }
@@ -35,9 +36,9 @@ impl<D> Middleware<D> for PostHandler {
 }
 
 impl PostHandler {
-    pub fn new(player_mutex: Arc<Mutex<message::Player>>) -> PostHandler {
+    pub fn new(state_mutex: Arc<Mutex<game::State>>) -> PostHandler {
         PostHandler {
-            player_mutex: player_mutex
+            state_mutex: state_mutex
         }
     }
 }

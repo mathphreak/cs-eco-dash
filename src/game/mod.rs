@@ -1,6 +1,5 @@
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
 use super::gsi;
 
 #[allow(dead_code)]
@@ -156,22 +155,20 @@ pub struct State {
     pub team: String,
     pub money: u32,
     pub gsi: gsi::Versions,
-    gsi_player: Arc<Mutex<gsi::Player>>
 }
 
 impl State {
-    pub fn new(gsi_player: Arc<Mutex<gsi::Player>>) -> State {
+    pub fn empty() -> State {
         State {
             team: "CT".to_string(),
             money: 0,
             gsi: gsi::Versions::new(),
-            gsi_player: gsi_player
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, message: gsi::Message) {
         self.gsi.update();
-        let player = self.gsi_player.lock().unwrap();
+        let player = message.player;
         self.money = player.clone().state.money;
         self.team = player.clone().team;
     }

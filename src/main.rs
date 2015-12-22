@@ -13,15 +13,13 @@ use rustc_serialize::json::ToJson;
 
 fn main() {
     let mut server = Nickel::new();
-    let current_gsi_player = Arc::new(Mutex::new(gsi::Player::empty()));
-    let current_player_state = Arc::new(Mutex::new(game::State::new(current_gsi_player.clone())));
+    let game_state = Arc::new(Mutex::new(game::State::empty()));
 
-    server.utilize(gsi::router(current_gsi_player.clone()));
+    server.utilize(gsi::router(game_state.clone()));
 
     server.get("/data.json", middleware! { |_, response|
-        let mut current_player_state = current_player_state.lock().unwrap();
-        current_player_state.update();
-        return response.send((*current_player_state).to_json())
+        let game_state = game_state.lock().unwrap();
+        return response.send((*game_state).to_json())
     });
 
     server.utilize(StaticFilesHandler::new("assets/"));
