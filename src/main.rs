@@ -18,7 +18,8 @@ fn main() {
     server.utilize(gsi::router(game_state.clone()));
 
     server.get("/data.json", middleware! { |_, response|
-        let game_state = game_state.lock().unwrap();
+        let mut game_state = game_state.lock().unwrap();
+        (*game_state).gsi.update();
         return response.send((*game_state).to_json())
     });
 
