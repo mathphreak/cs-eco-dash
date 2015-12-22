@@ -1,11 +1,15 @@
+extern crate time;
+
 use rustc_serialize::json::{self, ToJson, Json};
 use std::collections::BTreeMap;
 use super::gsi;
 use super::gsi::message;
+use super::common::TakesUpdates;
 
 mod equipment;
 
 pub struct State {
+    last_up: time::Tm,
     pub team: Option<message::Team>,
     pub money: u32,
     pub gsi: gsi::Versions,
@@ -15,15 +19,34 @@ pub struct State {
 impl State {
     pub fn empty() -> State {
         State {
+            last_up: time::at(time::Timespec::new(0, 0)),
             team: None,
             money: 0,
             gsi: gsi::Versions::new(),
             won_rounds: vec![]
         }
     }
+}
 
-    pub fn update(&mut self, message: message::Message) {
+impl TakesUpdates<()> for State {
+    fn update(&mut self, _: ()) {
         self.gsi.update();
+    }
+}
+
+fn tm_from_unix_timestamp(timestamp: u32) -> Result<time::Tm, time::ParseError> {
+    let timestamp_as_string = timestamp.to_string();
+    time::strptime(&timestamp_as_string, "%s")
+}
+
+impl TakesUpdates<message::Message> for State {
+    fn update(&mut self, message: message::Message) {
+        self.gsi.update();
+        if let Ok(last_up) = tm_from_unix_timestamp(message.provider.timestamp) {
+            self.last_up = last_up;
+        } else {
+            println!("It's complicated");
+        }
         let player = message.clone().player;
         if let Some(state) = player.clone().state {
             self.money = state.money;
@@ -46,6 +69,10 @@ impl State {
 impl ToJson for State {
     fn to_json(&self) -> Json {
         let mut d = BTreeMap::new();
+        let twenty_seconds = time::Duration::seconds(20);
+        let twenty_seconds_ago = time::now() - twenty_seconds;
+        let is_up = self.last_up > twenty_seconds_ago;
+        d.insert("up".to_string(), is_up.to_json());
         d.insert("money".to_string(), self.money.to_json());
         if let Some(ref team) = self.team {
             d.insert("team".to_string(), json::encode(&team).unwrap().to_json());

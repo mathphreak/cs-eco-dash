@@ -5,11 +5,13 @@ extern crate crc;
 
 mod gsi;
 mod game;
+mod common;
 
 use nickel::{Nickel, HttpRouter};
 use nickel::StaticFilesHandler;
 use std::sync::{Arc, Mutex};
 use rustc_serialize::json::ToJson;
+use self::common::TakesUpdates;
 
 fn main() {
     let mut server = Nickel::new();
@@ -19,7 +21,7 @@ fn main() {
 
     server.get("/data.json", middleware! { |_, response|
         let mut game_state = game_state.lock().unwrap();
-        (*game_state).gsi.update();
+        (*game_state).update(());
         return response.send((*game_state).to_json())
     });
 

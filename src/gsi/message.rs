@@ -13,13 +13,15 @@ pub struct State {
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct Provider {
-    pub steamid: String
+    pub steamid: String,
+    pub timestamp: u32,
 }
 
 impl Provider {
     fn empty() -> Provider {
         Provider{
-            steamid: "".to_string()
+            steamid: "".to_string(),
+            timestamp: 0,
         }
     }
 }

@@ -15,8 +15,14 @@ function update() {
       })
     }
     $("#server-down").hide();
+    if (data.up) {
+      $("#csgo-down").hide();
+    } else {
+      $("#csgo-down").show();
+    }
   }).fail(function() {
     $("#server-down").show();
+    $("#csgo-down").hide();
   })
 }
 

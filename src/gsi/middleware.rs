@@ -4,15 +4,15 @@ use rustc_serialize::json;
 use super::version;
 use super::paths;
 use super::message;
-use super::super::game;
+use super::super::common::TakesUpdates;
 use std::fs;
 use std::io::Read;
 
-pub struct PostHandler {
-    state_mutex: Arc<Mutex<game::State>>
+pub struct PostHandler<T> where T: TakesUpdates<message::Message> {
+    state_mutex: Arc<Mutex<T>>
 }
 
-impl<D> Middleware<D> for PostHandler {
+impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates<message::Message> {
     fn invoke<'a, 'server>(&'a self, request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
             -> MiddlewareResult<'a, D> {
         let mut body = String::new();
@@ -35,8 +35,8 @@ impl<D> Middleware<D> for PostHandler {
     }
 }
 
-impl PostHandler {
-    pub fn new(state_mutex: Arc<Mutex<game::State>>) -> PostHandler {
+impl<T> PostHandler<T> where T: TakesUpdates<message::Message> {
+    pub fn new(state_mutex: Arc<Mutex<T>>) -> PostHandler<T> {
         PostHandler {
             state_mutex: state_mutex
         }
