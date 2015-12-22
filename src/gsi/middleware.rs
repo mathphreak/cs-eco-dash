@@ -23,7 +23,7 @@ impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates<messa
             Err(err) => {
                 println!("bad JSON: {}", body);
                 println!("cause: {}", err);
-                message::Message::empty()
+                Default::default()
             },
         };
         if data.provider.steamid == data.player.steamid {

@@ -1,6 +1,7 @@
 use rustc_serialize::json::{Json, ToJson};
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Default, Clone, Copy)]
 pub struct State {
     armor: u32,
     burning: u32,
@@ -13,22 +14,15 @@ pub struct State {
     smoked: u32
 }
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Default, Clone)]
 pub struct Provider {
     pub steamid: String,
     pub timestamp: u32,
 }
 
-impl Provider {
-    fn empty() -> Provider {
-        Provider{
-            steamid: "".to_string(),
-            timestamp: 0,
-        }
-    }
-}
-
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy)]
 #[allow(non_camel_case_types)]
 pub enum Activity {
     menu,
@@ -46,7 +40,8 @@ impl ToJson for Activity {
     }
 }
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy)]
 #[derive(PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum Team {
@@ -63,7 +58,8 @@ impl ToJson for Team {
     }
 }
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Default, Clone)]
 pub struct Player {
     pub steamid: String,
     pub team: Option<Team>,
@@ -71,18 +67,8 @@ pub struct Player {
     pub state: Option<State>,
 }
 
-impl Player {
-    pub fn empty() -> Player {
-        Player{
-            steamid: "".to_string(),
-            team: None,
-            activity: None,
-            state: None
-        }
-    }
-}
-
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy)]
 #[derive(PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum Phase {
@@ -91,7 +77,14 @@ pub enum Phase {
     freezetime,
 }
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+impl Default for Phase {
+    fn default() -> Phase {
+        Phase::over
+    }
+}
+
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy)]
 #[derive(PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum Bomb {
@@ -100,26 +93,18 @@ pub enum Bomb {
     defused,
 }
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Default, Clone, Copy)]
 pub struct Round {
     pub phase: Phase,
     pub bomb: Option<Bomb>,
     pub win_team: Option<Team>,
 }
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Default, Clone)]
 pub struct Message {
     pub provider: Provider,
     pub player: Player,
     pub round: Option<Round>,
-}
-
-impl Message {
-    pub fn empty() -> Message {
-        Message{
-            provider: Provider::empty(),
-            player: Player::empty(),
-            round: None,
-        }
-    }
 }

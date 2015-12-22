@@ -54,7 +54,7 @@ impl TakesUpdates<message::Message> for State {
         }
         let ref player = message.player;
         match player.state {
-            Some(ref state) => {
+            Some(state) => {
                 self.in_game = true;
                 self.money = state.money;
             },
@@ -62,13 +62,13 @@ impl TakesUpdates<message::Message> for State {
                 self.reset();
             }
         }
-        if let Some(ref team) = player.team {
-            self.team = Some((*team).clone());
+        if let Some(team) = player.team {
+            self.team = Some(team);
         }
-        if let Some(ref round) = message.round {
+        if let Some(round) = message.round {
             if round.phase == message::Phase::over {
-                if let Some(ref win_team) = round.win_team {
-                    if let Some(ref team) = self.team {
+                if let Some(win_team) = round.win_team {
+                    if let Some(team) = self.team {
                         self.won_rounds.push(win_team == team);
                     }
                 }
