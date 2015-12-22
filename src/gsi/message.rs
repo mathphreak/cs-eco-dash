@@ -1,3 +1,5 @@
+use rustc_serialize::json::{Json, ToJson};
+
 #[derive(RustcEncodable, RustcDecodable, Clone)]
 pub struct State {
     armor: u32,
@@ -34,12 +36,31 @@ pub enum Activity {
     textinput,
 }
 
+impl ToJson for Activity {
+    fn to_json(&self) -> Json {
+        Json::String((match *self {
+            Activity::menu => "menu",
+            Activity::playing => "playing",
+            Activity::textinput => "textinput",
+        }).to_string())
+    }
+}
+
 #[derive(RustcEncodable, RustcDecodable, Clone)]
 #[derive(PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum Team {
     CT,
     T,
+}
+
+impl ToJson for Team {
+    fn to_json(&self) -> Json {
+        Json::String((match *self {
+            Team::CT => "CT",
+            Team::T => "T",
+        }).to_string())
+    }
 }
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]

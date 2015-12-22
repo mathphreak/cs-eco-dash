@@ -20,6 +20,13 @@ function update() {
     } else {
       $("#csgo-down").show();
     }
+    if (data.in_game) {
+      $("#out-of-game").hide();
+      $("#in-game").show();
+    } else {
+      $("#out-of-game").show();
+      $("#in-game").hide();
+    }
   }).fail(function() {
     $("#server-down").show();
     $("#csgo-down").hide();
