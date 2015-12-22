@@ -1,3 +1,10 @@
+.navbar-text {
+  /* force this even on narrow viewports */
+  float: left;
+  margin-right: 15px;
+  margin-left: 15px;
+}
+
 #fail-icons {
   font-size: 10px;
 }

@@ -13,20 +13,26 @@ pub struct State {
     money: u32,
     gsi: gsi::Versions,
     won_rounds: Vec<bool>,
+    gamemode: message::Mode,
+    map: String,
 }
 
-impl State {
-    pub fn empty() -> State {
+impl Default for State {
+    fn default() -> State {
         State {
             last_up: time::at(time::Timespec::new(0, 0)),
             in_game: false,
             team: None,
             money: 0,
             gsi: gsi::Versions::new(),
-            won_rounds: vec![]
+            won_rounds: vec![],
+            gamemode: Default::default(),
+            map: "".to_string(),
         }
     }
+}
 
+impl State {
     fn reset(&mut self) {
         self.in_game = false;
         self.team = None;
@@ -51,6 +57,10 @@ impl TakesUpdates<message::Message> for State {
         self.gsi.update();
         if let Ok(last_up) = tm_from_unix_timestamp(message.provider.timestamp) {
             self.last_up = last_up;
+        }
+        if let Some(ref map) = message.map {
+            self.gamemode = map.clone().mode;
+            self.map = map.clone().name;
         }
         let ref provider = message.provider;
         let ref player = message.player;
@@ -100,6 +110,8 @@ impl ToJson for State {
         }
         d.insert("won_rounds".to_string(), self.won_rounds.to_json());
         d.insert("gsi".to_string(), self.gsi.to_json());
+        d.insert("gamemode".to_string(), self.gamemode.to_json());
+        d.insert("map".to_string(), self.map.to_json());
         Json::Object(d)
     }
 }

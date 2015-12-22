@@ -11,12 +11,10 @@
     <link href="/main.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default navbar-static-top">
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="#">csgo-eco-dash</a>
-        </div>
-        <div class="navbar-right">
           <p id="fail-icons" class="navbar-text">
             <span id="server-down" class="fa-stack text-danger" title="Server is down">
               <i class="fa fa-cloud fa-stack-2x"></i>
@@ -26,6 +24,9 @@
               <i class="fa fa-gamepad fa-stack-1x"></i>
               <i class="fa fa-ban fa-stack-2x"></i>
             </span>
+          </p>
+          <p id="game-status" class="navbar-text">
+            <span id="gamemode">???</span> on <span id="map">???</span>
           </p>
         </div>
       </div>

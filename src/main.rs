@@ -15,7 +15,7 @@ use self::common::TakesUpdates;
 
 fn main() {
     let mut server = Nickel::new();
-    let game_state = Arc::new(Mutex::new(game::State::empty()));
+    let game_state = Arc::new(Mutex::new(game::State::default()));
 
     server.utilize(gsi::router(game_state.clone()));
 

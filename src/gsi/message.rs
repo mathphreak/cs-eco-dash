@@ -67,19 +67,39 @@ pub struct Player {
     pub state: Option<State>,
 }
 
-#[derive(RustcEncodable, RustcDecodable)]
-#[derive(Clone, Copy)]
-#[derive(PartialEq)]
-#[allow(non_camel_case_types)]
-pub enum Phase {
-    over,
-    live,
-    freezetime,
-}
+mod round {
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Clone, Copy)]
+    #[derive(PartialEq)]
+    #[allow(non_camel_case_types)]
+    pub enum Phase {
+        over,
+        live,
+        freezetime,
+    }
 
-impl Default for Phase {
-    fn default() -> Phase {
-        Phase::over
+    impl Default for Phase {
+        fn default() -> Phase {
+            Phase::over
+        }
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Clone, Copy)]
+    #[derive(PartialEq)]
+    #[allow(non_camel_case_types)]
+    pub enum Bomb {
+        planted,
+        exploded,
+        defused,
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone, Copy)]
+    pub struct Round {
+        pub phase: Phase,
+        pub bomb: Option<Bomb>,
+        pub win_team: Option<super::Team>,
     }
 }
 
@@ -87,24 +107,82 @@ impl Default for Phase {
 #[derive(Clone, Copy)]
 #[derive(PartialEq)]
 #[allow(non_camel_case_types)]
-pub enum Bomb {
-    planted,
-    exploded,
-    defused,
+pub enum Mode {
+    casual,
+    competitive,
+    gungametrbomb,
+    gungameprogressive,
+    deathmatch,
+    custom,
 }
 
-#[derive(RustcEncodable, RustcDecodable)]
-#[derive(Default, Clone, Copy)]
-pub struct Round {
-    pub phase: Phase,
-    pub bomb: Option<Bomb>,
-    pub win_team: Option<Team>,
+impl Default for Mode {
+    fn default() -> Mode {
+        Mode::custom
+    }
+}
+
+impl ToJson for Mode {
+    fn to_json(&self) -> Json {
+        use self::Mode::*;
+        Json::String((match *self {
+            casual => "Casual",
+            competitive => "Competitive",
+            gungametrbomb => "Demolition",
+            gungameprogressive => "Arms Race",
+            deathmatch => "Deathmatch",
+            custom => "Custom",
+        }).to_string())
+    }
+}
+
+mod map {
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Clone, Copy)]
+    #[derive(PartialEq)]
+    #[allow(non_camel_case_types)]
+    pub enum Phase {
+        live,
+        gameover,
+        warmup,
+        intermission,
+    }
+
+    impl Default for Phase {
+        fn default() -> Phase {
+            Phase::gameover
+        }
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone)]
+    pub struct Map {
+        pub mode: super::Mode,
+        pub name: String,
+        pub phase: Phase,
+    }
+}
+
+mod added {
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone, Copy)]
+    pub struct Round {
+        pub win_team: Option<bool>,
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone, Copy)]
+    pub struct Added {
+        pub round: Option<Round>,
+    }
 }
 
 #[derive(RustcEncodable, RustcDecodable)]
 #[derive(Default, Clone)]
 pub struct Message {
     pub provider: Provider,
+    pub map: Option<map::Map>,
     pub player: Player,
-    pub round: Option<Round>,
+    pub round: Option<round::Round>,
+    pub added: Option<added::Added>,
 }
