@@ -5,10 +5,11 @@ extern crate crc;
 use nickel::{Router, HttpRouter};
 use std::sync::{Arc, Mutex};
 
-pub use self::middleware::Player;
+pub use self::message::Player;
 pub use self::version::Versions;
 
 pub mod version;
+mod message;
 mod middleware;
 mod paths;
 

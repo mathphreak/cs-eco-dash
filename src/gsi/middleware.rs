@@ -1,88 +1,14 @@
-
 use nickel::{Middleware, Request, Response, MiddlewareResult};
 use std::sync::{Arc, Mutex};
 use rustc_serialize::json;
 use super::version;
 use super::paths;
+use super::message;
 use std::fs;
 use std::io::Read;
 
-#[derive(RustcEncodable, RustcDecodable, Clone)]
-pub struct State {
-    armor: u32,
-    burning: u32,
-    flashed: u32,
-    health: u32,
-    helmet: bool,
-    pub money: u32,
-    round_killhs: u32,
-    round_kills: u32,
-    smoked: u32
-}
-
-impl State {
-    pub fn empty() -> State {
-        State{
-            armor: 0,
-            burning: 0,
-            flashed: 0,
-            health: 0,
-            helmet: false,
-            money: 0,
-            round_killhs: 0,
-            round_kills: 0,
-            smoked: 0
-        }
-    }
-}
-
-#[derive(RustcEncodable, RustcDecodable)]
-struct Provider {
-    steamid: String
-}
-
-impl Provider {
-    fn empty() -> Provider {
-        Provider{
-            steamid: "".to_string()
-        }
-    }
-}
-
-#[derive(RustcEncodable, RustcDecodable, Clone)]
-pub struct Player {
-    steamid: String,
-    pub team: String,
-    pub state: State
-}
-
-impl Player {
-    pub fn empty() -> Player {
-        Player{
-            steamid: "".to_string(),
-            team: "".to_string(),
-            state: State::empty()
-        }
-    }
-}
-
-#[derive(RustcEncodable, RustcDecodable)]
-struct Message {
-    provider: Provider,
-    player: Player
-}
-
-impl Message {
-    fn empty() -> Message {
-        Message{
-            provider: Provider::empty(),
-            player: Player::empty()
-        }
-    }
-}
-
 pub struct PostHandler {
-    player_mutex: Arc<Mutex<Player>>
+    player_mutex: Arc<Mutex<message::Player>>
 }
 
 impl<D> Middleware<D> for PostHandler {
@@ -91,11 +17,11 @@ impl<D> Middleware<D> for PostHandler {
         let mut body = String::new();
         request.origin.read_to_string(&mut body).unwrap();
         println!("Got JSON: {}", body);
-        let data: Message = match json::decode(&body) {
+        let data: message::Message = match json::decode(&body) {
             Ok(data) => data,
             Err(_) => {
                 println!("bad JSON: {}", body);
-                Message::empty()
+                message::Message::empty()
             },
         };
         if data.provider.steamid == data.player.steamid {
@@ -109,7 +35,7 @@ impl<D> Middleware<D> for PostHandler {
 }
 
 impl PostHandler {
-    pub fn new(player_mutex: Arc<Mutex<Player>>) -> PostHandler {
+    pub fn new(player_mutex: Arc<Mutex<message::Player>>) -> PostHandler {
         PostHandler {
             player_mutex: player_mutex
         }
