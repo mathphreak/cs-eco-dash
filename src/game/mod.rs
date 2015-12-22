@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 use super::gsi;
 
+#[allow(dead_code)]
 pub enum Equipment {
     Glock,
     P2000,
