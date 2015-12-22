@@ -4,38 +4,55 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>CS:GO Economy Dashboard</title>
 
-    <!-- Bootstrap -->
     <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="/main.css" rel="stylesheet">
   </head>
   <body>
-    <h1>You have $<span id="money">???</span></h1>
-    <p>You should buy:
-      <ul id="recommendations">
-        <li>???</li>
-      </ul>
-    </p>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">csgo-eco-dash</a>
+        </div>
+        <div class="navbar-right">
+          <p id="fail-icons" class="navbar-text">
+            <span id="server-down" class="fa-stack text-danger" title="Server is down">
+              <i class="fa fa-cloud fa-stack-2x"></i>
+              <i class="fa fa-ban fa-stack-1x fa-inverse"></i>
+            </span>
+            <span id="csgo-down" class="fa-stack text-warning" title="Game is not running">
+              <i class="fa fa-gamepad fa-stack-1x"></i>
+              <i class="fa fa-ban fa-stack-2x"></i>
+            </span>
+          </p>
+        </div>
+      </div>
+    </nav>
 
-    <div id="gsi-install-config">
-      <p>Expected version <span id="gsi-target">???</span></p>
-      <p>Found version <span id="gsi-installed">???</span></p>
-      <form method="post" action="/install-gsi">
-        <input type="submit" value="Install/Update">
-      </form>
+    <div class="container">
+      <div class="alert alert-danger" role="alert">
+        <strong>Robots are stupid! Your teammates&hellip;might not be!</strong>
+        Listen to your team, not this dumb thing!
+      </div>
+      <h2>You have $<span id="money">???</span></h2>
+      <p>You should buy:
+        <ul id="recommendations">
+          <li>???</li>
+        </ul>
+      </p>
+
+      <div id="gsi-install-config">
+        <p>Expected version <span id="gsi-target">???</span></p>
+        <p>Found version <span id="gsi-installed">???</span></p>
+        <form method="post" action="/install-gsi">
+          <input type="submit" value="Install/Update">
+        </form>
+      </div>
     </div>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
     <script src="/main.js"></script>
   </body>

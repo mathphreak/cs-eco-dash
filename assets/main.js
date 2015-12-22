@@ -1,5 +1,5 @@
 function update() {
-  $.getJSON('/data.json', function(data, status, xhr) {
+  $.getJSON('/data.json').done(function(data) {
     $("#money").text(data.money)
     $("#gsi-installed").text(data.gsi.installed)
     $("#gsi-target").text(data.gsi.target)
@@ -9,9 +9,14 @@ function update() {
       $("#gsi-install-config").show();
     }
     $("#recommendations").html("");
-    data.recommendations.forEach(function(rec) {
-      $("#recommendations").append($("<li>" + rec + "</li>"));
-    })
+    if (data.recommendations) {
+      data.recommendations.forEach(function(rec) {
+        $("#recommendations").append($("<li>" + rec + "</li>"));
+      })
+    }
+    $("#server-down").hide();
+  }).fail(function() {
+    $("#server-down").show();
   })
 }
 
