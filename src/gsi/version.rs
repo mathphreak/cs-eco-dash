@@ -20,6 +20,10 @@ impl Installed {
         }
     }
 
+    fn invalidate(&mut self) {
+        self.last_check = time::now() - time::Duration::minutes(5);
+    }
+
     pub fn get(&mut self) -> String {
         if (self.last_check + time::Duration::minutes(1)).gt(&time::now()) {
             return self.last_result.clone();
@@ -59,6 +63,10 @@ impl Target {
         }
     }
 
+    fn invalidate(&mut self) {
+        self.last_check = time::now() - time::Duration::minutes(5);
+    }
+
     pub fn get(&mut self) -> String {
         if (self.last_check + time::Duration::minutes(1)).gt(&time::now()) {
             return self.last_result.clone();
@@ -85,6 +93,11 @@ impl Versions {
             installed: Installed::new(),
             target: Target::new()
         }
+    }
+
+    pub fn invalidate(&mut self) {
+        self.installed.invalidate();
+        self.target.invalidate();
     }
 
     pub fn update(&mut self) {

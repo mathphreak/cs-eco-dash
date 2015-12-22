@@ -1,7 +1,7 @@
 extern crate time;
 
 use super::super::gsi::{self, message};
-use super::super::common::TakesUpdates;
+use super::super::gsi::message::{TakesUpdates, UpdateReason};
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 use super::equipment;
@@ -41,52 +41,56 @@ impl State {
     }
 }
 
-impl TakesUpdates<()> for State {
-    fn update(&mut self, _: &()) {
-        self.gsi.update();
-    }
-}
-
 fn tm_from_unix_timestamp(timestamp: u32) -> Result<time::Tm, time::ParseError> {
     let timestamp_as_string = timestamp.to_string();
     time::strptime(&timestamp_as_string, "%s")
 }
 
-impl TakesUpdates<message::Message> for State {
-    fn update(&mut self, message: &message::Message) {
-        self.gsi.update();
-        if let Ok(last_up) = tm_from_unix_timestamp(message.provider.timestamp) {
-            self.last_up = last_up;
-        }
-        if let Some(ref map) = message.map {
-            self.gamemode = map.clone().mode;
-            self.map = map.clone().name;
-        }
-        let ref provider = message.provider;
-        let ref player = message.player;
-        if provider.steamid == player.steamid {
-            match player.state {
-                Some(state) => {
-                    self.in_game = true;
-                    self.money = state.money;
-                },
-                None => {
-                    self.reset();
+impl TakesUpdates for State {
+    fn update(&mut self, reason: &UpdateReason) {
+        match *reason {
+            UpdateReason::Fetch => {
+                self.gsi.update();
+            },
+            UpdateReason::Update => {
+                self.gsi.invalidate();
+            },
+            UpdateReason::Data(ref message) => {
+                self.gsi.update();
+                if let Ok(last_up) = tm_from_unix_timestamp(message.provider.timestamp) {
+                    self.last_up = last_up;
                 }
-            }
-            if let Some(team) = player.team {
-                self.team = Some(team);
-            }
-        }
-        let added_win_team = message.added;
-        let added_win_team = added_win_team.and_then(|x| x.round);
-        let added_win_team = added_win_team.and_then(|x| x.win_team);
-        let added_win_team = added_win_team.unwrap_or(false);
-        if added_win_team {
-            if let Some(round) = message.round {
-                if let Some(win_team) = round.win_team {
-                    if let Some(team) = self.team {
-                        self.won_rounds.push(win_team == team);
+                if let Some(ref map) = message.map {
+                    self.gamemode = map.clone().mode;
+                    self.map = map.clone().name;
+                }
+                let ref provider = message.provider;
+                let ref player = message.player;
+                if provider.steamid == player.steamid {
+                    match player.state {
+                        Some(state) => {
+                            self.in_game = true;
+                            self.money = state.money;
+                        },
+                        None => {
+                            self.reset();
+                        }
+                    }
+                    if let Some(team) = player.team {
+                        self.team = Some(team);
+                    }
+                }
+                let added_win_team = message.added;
+                let added_win_team = added_win_team.and_then(|x| x.round);
+                let added_win_team = added_win_team.and_then(|x| x.win_team);
+                let added_win_team = added_win_team.unwrap_or(false);
+                if added_win_team {
+                    if let Some(round) = message.round {
+                        if let Some(win_team) = round.win_team {
+                            if let Some(team) = self.team {
+                                self.won_rounds.push(win_team == team);
+                            }
+                        }
                     }
                 }
             }

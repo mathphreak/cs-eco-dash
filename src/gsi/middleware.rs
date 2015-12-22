@@ -4,15 +4,15 @@ use rustc_serialize::json;
 use super::version;
 use super::paths;
 use super::message;
-use super::super::common::TakesUpdates;
+use super::message::{TakesUpdates, UpdateReason};
 use std::fs;
 use std::io::Read;
 
-pub struct PostHandler<T> where T: TakesUpdates<message::Message> {
+pub struct PostHandler<T> where T: TakesUpdates {
     state_mutex: Arc<Mutex<T>>
 }
 
-impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates<message::Message> {
+impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates {
     fn invoke<'a, 'server>(&'a self, request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
             -> MiddlewareResult<'a, D> {
         let mut body = String::new();
@@ -27,12 +27,12 @@ impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates<messa
             },
         };
         let mut current_player = self.state_mutex.lock().unwrap();
-        (*current_player).update(&data);
+        (*current_player).update(&UpdateReason::Data(data));
         return response.send("Thanks");
     }
 }
 
-impl<T> PostHandler<T> where T: TakesUpdates<message::Message> {
+impl<T> PostHandler<T> where T: TakesUpdates {
     pub fn new(state_mutex: Arc<Mutex<T>>) -> PostHandler<T> {
         PostHandler {
             state_mutex: state_mutex
@@ -40,9 +40,11 @@ impl<T> PostHandler<T> where T: TakesUpdates<message::Message> {
     }
 }
 
-pub struct Installer;
+pub struct Installer<T> where T: TakesUpdates {
+    state_mutex: Arc<Mutex<T>>
+}
 
-impl<D> Middleware<D> for Installer {
+impl<D, T: 'static> Middleware<D> for Installer<T> where T: TakesUpdates {
     fn invoke<'a, 'server>(&'a self, _request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
             -> MiddlewareResult<'a, D> {
         let inst = version::Installed::new().get();
@@ -64,12 +66,16 @@ impl<D> Middleware<D> for Installer {
         dst_path.push_str(".cfg");
         println!("Copying {} to {}", src_path, dst_path);
         fs::copy(src_path, dst_path).unwrap();
+        let mut current_player = self.state_mutex.lock().unwrap();
+        (*current_player).update(&UpdateReason::Update);
         return response.send("It worked");
     }
 }
 
-impl Installer {
-    pub fn new() -> Installer {
-        Installer
+impl<T> Installer<T> where T: TakesUpdates {
+    pub fn new(state_mutex: Arc<Mutex<T>>) -> Installer<T> {
+        Installer {
+            state_mutex: state_mutex
+        }
     }
 }

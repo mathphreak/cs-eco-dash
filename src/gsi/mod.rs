@@ -15,8 +15,8 @@ mod paths;
 
 pub fn router(state_mutex: Arc<Mutex<game::State>>) -> Router<()> {
     let mut router = Router::new();
-    let post_handler = middleware::PostHandler::new(state_mutex);
-    let installer = middleware::Installer::new();
+    let post_handler = middleware::PostHandler::new(state_mutex.clone());
+    let installer = middleware::Installer::new(state_mutex.clone());
     router.post("/", post_handler);
     router.post("/install-gsi", installer);
     router

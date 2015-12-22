@@ -1,5 +1,15 @@
 use rustc_serialize::json::{Json, ToJson};
 
+pub enum UpdateReason {
+    Fetch,
+    Update,
+    Data(Message),
+}
+
+pub trait TakesUpdates : Send {
+    fn update(&mut self, data: &UpdateReason);
+}
+
 #[derive(RustcEncodable, RustcDecodable)]
 #[derive(Default, Clone, Copy)]
 pub struct State {
