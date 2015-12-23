@@ -9,6 +9,7 @@ use std::string::ToString;
 #[allow(dead_code)]
 #[derive(Debug)]
 #[derive(PartialEq)]
+#[derive(Clone, Copy)]
 pub enum Equipment {
     Glock,
     P2000,
@@ -235,16 +236,24 @@ impl Equipment {
             }
             reward
         };
+        let mut inventory = state.inventory.clone();
 
         macro_rules! check {
             ( $eqp:expr ) => {{
                 let cost = $eqp.cost() as i64;
-                let allowed = match $eqp.restriction() {
+                let mut allowed = match $eqp.restriction() {
                     None => true,
                     Some(message::Team::CT) => is_ct,
                     Some(message::Team::T) => is_t,
                 };
+                if $eqp == Flash {
+                    let count = inventory.iter().filter(|x| **x == Flash).count();
+                    allowed = allowed && count <= 1;
+                } else {
+                    allowed = allowed && !inventory.contains(&$eqp);
+                }
                 if remaining_money >= cost && allowed {
+                    inventory.push($eqp);
                     result.push($eqp);
                     remaining_money -= cost;
                 }

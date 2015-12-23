@@ -4,7 +4,7 @@ use super::super::gsi::{self, message};
 use super::super::gsi::message::{TakesUpdates, UpdateReason};
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
-use super::equipment;
+use super::equipment::Equipment;
 
 pub struct State {
     last_up: time::Tm,
@@ -13,6 +13,7 @@ pub struct State {
     pub money: u32,
     gsi: gsi::Versions,
     pub won_rounds: Vec<bool>,
+    pub inventory: Vec<Equipment>,
     gamemode: message::Mode,
     map: String,
 }
@@ -26,6 +27,7 @@ impl Default for State {
             money: 0,
             gsi: gsi::Versions::new(),
             won_rounds: vec![],
+            inventory: vec![],
             gamemode: Default::default(),
             map: "".to_string(),
         }
@@ -114,7 +116,7 @@ impl ToJson for State {
         if let Some(ref team) = self.team {
             d.insert("team".to_string(), team.to_json());
         }
-        if let Ok(recs) = equipment::Equipment::recommended(self) {
+        if let Ok(recs) = Equipment::recommended(self) {
             d.insert("recommendations".to_string(), recs.to_json());
         }
         d.insert("won_rounds".to_string(), self.won_rounds.to_json());
