@@ -50,7 +50,7 @@ impl<D, T: 'static> Middleware<D> for Installer<T> where T: TakesUpdates {
         let inst = version::Installed::new().get();
         let target = version::Target::new().get();
         if inst != "NONE" {
-            let mut del_path = paths::CSGO_CFG.to_string().clone();
+            let mut del_path = paths::get_csgo_cfg().clone();
             del_path.push_str("/");
             del_path.push_str(&paths::CFG_PREFIX);
             del_path.push_str(&inst);
@@ -59,7 +59,7 @@ impl<D, T: 'static> Middleware<D> for Installer<T> where T: TakesUpdates {
             fs::remove_file(del_path).unwrap();
         }
         let src_path = "config/gsi.cfg";
-        let mut dst_path = paths::CSGO_CFG.to_string().clone();
+        let mut dst_path = paths::get_csgo_cfg().clone();
         dst_path.push_str("/");
         dst_path.push_str(&paths::CFG_PREFIX);
         dst_path.push_str(&target);

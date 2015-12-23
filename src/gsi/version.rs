@@ -29,8 +29,8 @@ impl Installed {
             return self.last_result.clone();
         } else {
             self.last_check = time::now();
-            if fs::metadata(paths::CSGO_CFG).unwrap().is_dir() {
-                for entry in fs::read_dir(paths::CSGO_CFG).unwrap() {
+            if fs::metadata(paths::get_csgo_cfg()).unwrap().is_dir() {
+                for entry in fs::read_dir(paths::get_csgo_cfg()).unwrap() {
                     let entry = entry.unwrap();
                     let name = entry.path();
                     let name = name.file_name().unwrap();

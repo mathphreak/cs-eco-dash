@@ -5,3 +5,4 @@ extern crate crc;
 
 pub mod gsi;
 pub mod game;
+pub mod prefs;
