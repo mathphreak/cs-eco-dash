@@ -10,7 +10,7 @@ pub struct State {
     last_up: time::Tm,
     in_game: bool,
     pub team: Option<message::Team>,
-    pub money: u32,
+    pub money: i32,
     gsi: gsi::Versions,
     pub won_rounds: Vec<bool>,
     pub inventory: Vec<Equipment>,
@@ -40,6 +40,19 @@ impl State {
         self.team = None;
         self.money = 0;
         self.won_rounds = vec![];
+    }
+
+    pub fn min_next_reward(&self) -> i32 {
+        let mut reward = 1400;
+        let mut past_rounds = self.won_rounds.clone();
+        while let Some(x) = past_rounds.pop() {
+            if x || reward >= 3400 {
+                break;
+            } else {
+                reward += 500;
+            }
+        }
+        reward
     }
 
     fn handle_message(&mut self, message: &message::Message) {

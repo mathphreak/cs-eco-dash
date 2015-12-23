@@ -5,7 +5,7 @@ use cs_eco_dash::game::State;
 use cs_eco_dash::game::Equipment;
 use cs_eco_dash::game::Equipment::*;
 
-fn run(money: u32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, target: Vec<Equipment>) {
+fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, target: Vec<Equipment>) {
     let mut state: State = Default::default();
     state.money = money;
     state.team = Some(team);

@@ -135,7 +135,7 @@ impl<T> convert::From<Result<T, NoTeamError>> for NoTeamError {
 }
 
 impl Equipment {
-    fn cost(&self) -> u32 {
+    fn cost(&self) -> i32 {
         use self::Equipment::*;
         match *self {
             Glock => 0,
@@ -224,18 +224,7 @@ impl Equipment {
         };
         let is_ct = team == message::Team::CT;
         let is_t = team == message::Team::T;
-        let next_round_loss_reward = {
-            let mut reward = 1400;
-            let mut past_rounds = state.won_rounds.clone();
-            while let Some(x) = past_rounds.pop() {
-                if x || reward >= 3400 {
-                    break;
-                } else {
-                    reward += 500;
-                }
-            }
-            reward
-        };
+        let next_round_loss_reward = state.min_next_reward() as i64;
         let mut inventory = state.inventory.clone();
 
         macro_rules! check {

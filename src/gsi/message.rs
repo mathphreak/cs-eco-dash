@@ -13,15 +13,15 @@ pub trait TakesUpdates : Send {
 #[derive(RustcEncodable, RustcDecodable)]
 #[derive(Default, Clone, Copy)]
 pub struct State {
-    armor: u32,
-    burning: u32,
-    flashed: u32,
-    health: u32,
+    armor: u8,
+    burning: u8,
+    flashed: u8,
+    health: u8,
     helmet: bool,
-    pub money: u32,
-    round_killhs: u32,
-    round_kills: u32,
-    smoked: u32
+    pub money: i32,
+    round_killhs: u8,
+    round_kills: u8,
+    smoked: u8
 }
 
 #[derive(RustcEncodable, RustcDecodable)]
