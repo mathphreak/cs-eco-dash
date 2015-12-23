@@ -2,15 +2,14 @@
 extern crate rustc_serialize;
 extern crate time;
 extern crate crc;
-
-mod gsi;
-mod game;
+extern crate cs_eco_dash;
 
 use nickel::{Nickel, HttpRouter};
 use nickel::StaticFilesHandler;
 use std::sync::{Arc, Mutex};
 use rustc_serialize::json::ToJson;
-use self::gsi::message::{TakesUpdates, UpdateReason};
+use cs_eco_dash::{game, gsi};
+use cs_eco_dash::gsi::message::{TakesUpdates, UpdateReason};
 
 fn main() {
     let mut server = Nickel::new();

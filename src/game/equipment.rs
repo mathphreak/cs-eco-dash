@@ -1,7 +1,14 @@
 use rustc_serialize::json::{ToJson, Json};
 use super::super::gsi::message;
+use super::State;
+use std::error::Error;
+use std::fmt;
+use std::convert;
+use std::string::ToString;
 
 #[allow(dead_code)]
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Equipment {
     Glock,
     P2000,
@@ -48,10 +55,10 @@ pub enum Equipment {
     Smoke,
 }
 
-impl ToJson for Equipment {
-    fn to_json(&self) -> Json {
+impl fmt::Display for Equipment {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use self::Equipment::*;
-        Json::String((match *self {
+        write!(f, "{}", (match *self {
             Glock => "Glock",
             P2000 => "P2000",
             USPS => "USP-S",
@@ -96,6 +103,33 @@ impl ToJson for Equipment {
             Flash => "Flashbang",
             Smoke => "Smoke",
         }).to_string())
+    }
+}
+
+impl ToJson for Equipment {
+    fn to_json(&self) -> Json {
+        Json::String(self.to_string())
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct NoTeamError;
+
+impl fmt::Display for NoTeamError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.description())
+    }
+}
+
+impl Error for NoTeamError {
+    fn description(&self) -> &str {
+        "No team provided"
+    }
+}
+
+impl<T> convert::From<Result<T, NoTeamError>> for NoTeamError {
+    fn from(_: Result<T, NoTeamError>) -> Self {
+        NoTeamError
     }
 }
 
@@ -149,62 +183,127 @@ impl Equipment {
         }
     }
 
+    fn restriction(&self) -> Option<message::Team> {
+        use self::Equipment::*;
+        use super::super::gsi::message::Team::*;
+        match *self {
+            Glock => Some(T),
+            P2000 => Some(CT),
+            USPS => Some(CT),
+            Tec9 => Some(T),
+            FiveSeven => Some(CT),
+            SawedOff => Some(T),
+            MAG7 => Some(CT),
+            MAC10 => Some(T),
+            MP9 => Some(CT),
+            GalilAR => Some(T),
+            FAMAS => Some(CT),
+            AK47 => Some(T),
+            M4A4 => Some(CT),
+            M4A1S => Some(CT),
+            SG553 => Some(T),
+            AUG => Some(CT),
+            G3GS1 => Some(T),
+            SCAR20 => Some(CT),
+            Defuse => Some(CT),
+            Molotov => Some(T),
+            Incendiary => Some(CT),
+            _ => None
+        }
+    }
+
     #[allow(unused_assignments)]
-    pub fn recommended(money: u32, team: &message::Team) -> Vec<Equipment> {
+    pub fn recommended(state: &State) -> Result<Vec<Equipment>, NoTeamError> {
         use self::Equipment::*;
         let mut result = vec![];
-        let mut remaining_money = money;
-        let is_ct = *team == message::Team::CT;
-        let is_t = *team == message::Team::T;
-
-        macro_rules! buy {
-            ( $eqp:expr ) => {
-                result.push($eqp);
-                remaining_money -= $eqp.cost();
+        let mut remaining_money: i64 = state.money as i64;
+        let team = match state.team {
+            Some(team) => team,
+            None => return Err(Default::default())
+        };
+        let is_ct = team == message::Team::CT;
+        let is_t = team == message::Team::T;
+        let next_round_loss_reward = {
+            let mut reward = 1400;
+            let mut past_rounds = state.won_rounds.clone();
+            while let Some(x) = past_rounds.pop() {
+                if x || reward >= 3400 {
+                    break;
+                } else {
+                    reward += 500;
+                }
             }
+            reward
+        };
+
+        macro_rules! check {
+            ( $eqp:expr ) => {{
+                let cost = $eqp.cost() as i64;
+                let allowed = match $eqp.restriction() {
+                    None => true,
+                    Some(message::Team::CT) => is_ct,
+                    Some(message::Team::T) => is_t,
+                };
+                if remaining_money >= cost && allowed {
+                    result.push($eqp);
+                    remaining_money -= cost;
+                }
+            }};
         }
 
         // full buy
-        if is_ct && remaining_money > 5000 {
-            buy!(M4A1S);
-            buy!(P250);
-            buy!(VestHelmet);
-            buy!(Defuse);
-        } else if is_t && remaining_money > 5000 {
-            buy!(AK47);
-            buy!(Tec9);
-            buy!(VestHelmet);
+        if is_ct && remaining_money >= 5000 {
+            check!(M4A1S);
+            check!(P250);
+            check!(VestHelmet);
+            check!(Defuse);
+            check!(Smoke);
+            check!(Flash);
+            check!(Flash);
+            check!(Incendiary);
+        } else if is_t && remaining_money >= 5000 {
+            check!(AK47);
+            check!(Tec9);
+            check!(VestHelmet);
+            check!(Smoke);
+            check!(Flash);
+            check!(Flash);
+            check!(Molotov);
         } else {
-            // eco
-            if remaining_money > 1700 {
-                buy!(MP7);
+            if remaining_money + next_round_loss_reward >= 5000 {
+                remaining_money -= 5000 - next_round_loss_reward;
+                check!(M4A1S);
+                check!(AK47);
+                check!(MP7);
+                if remaining_money >= 1150 && is_t {
+                    check!(Vest);
+                    check!(Tec9);
+                }
+                if remaining_money >= 1000 {
+                    check!(VestHelmet);
+                    if remaining_money >= 500 && is_t {
+                        check!(Tec9);
+                    }
+                }
+                check!(Vest);
+                check!(Tec9);
+                check!(P250);
+            } else {
+                // eco
+                check!(MP7);
+                // equipment
+                check!(Vest);
+                check!(Defuse);
+
+                // grenades
+                check!(Smoke);
+                check!(Flash);
+                check!(Flash);
+                check!(Molotov);
+                check!(Incendiary);
             }
         }
 
-        // equipment
-        if remaining_money > 650 {
-            buy!(Vest);
-        }
-        if remaining_money > 400 && is_ct {
-            buy!(Defuse);
-        }
-
-        // grenades
-        if remaining_money > 300 {
-            buy!(Smoke);
-        }
-        if remaining_money > 200 {
-            buy!(Flash);
-        }
-        if remaining_money > 200 {
-            buy!(Flash);
-        }
-        if remaining_money > 400 && is_t {
-            buy!(Molotov);
-        } else if remaining_money > 600 && is_ct {
-            buy!(Incendiary);
-        }
-
-        result
+        Ok(result)
     }
 }

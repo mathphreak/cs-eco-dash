@@ -9,10 +9,10 @@ use super::equipment;
 pub struct State {
     last_up: time::Tm,
     in_game: bool,
-    team: Option<message::Team>,
-    money: u32,
+    pub team: Option<message::Team>,
+    pub money: u32,
     gsi: gsi::Versions,
-    won_rounds: Vec<bool>,
+    pub won_rounds: Vec<bool>,
     gamemode: message::Mode,
     map: String,
 }
@@ -112,9 +112,10 @@ impl ToJson for State {
         d.insert("in_game".to_string(), self.in_game.to_json());
         d.insert("money".to_string(), self.money.to_json());
         if let Some(ref team) = self.team {
-            d.insert("team".to_string(), self.team.to_json());
-            let recommendations = equipment::Equipment::recommended(self.money, team);
-            d.insert("recommendations".to_string(), recommendations.to_json());
+            d.insert("team".to_string(), team.to_json());
+        }
+        if let Ok(recs) = equipment::Equipment::recommended(self) {
+            d.insert("recommendations".to_string(), recs.to_json());
         }
         d.insert("won_rounds".to_string(), self.won_rounds.to_json());
         d.insert("gsi".to_string(), self.gsi.to_json());
