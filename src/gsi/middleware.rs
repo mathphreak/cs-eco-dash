@@ -49,11 +49,13 @@ impl<D> Middleware<D> for PrefsHandler {
             -> MiddlewareResult<'a, D> {
         let mut body = String::new();
         request.origin.read_to_string(&mut body).unwrap();
-        println!("Got prefs: {}", body);
         let data: Prefs = json::decode(&body).unwrap();
         if data.is_valid() {
-            data.save();
-            return response.send("");
+            if let Ok(_) = data.save() {
+                return response.send("");
+            } else {
+                return response.send(status::StatusCode::InternalServerError);
+            }
         } else {
             return response.send(status::StatusCode::BadRequest);
         }
