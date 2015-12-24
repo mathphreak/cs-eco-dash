@@ -1,4 +1,5 @@
 use nickel::{Middleware, Request, Response, MiddlewareResult};
+use nickel::status;
 use std::sync::{Arc, Mutex};
 use rustc_serialize::json;
 use super::version;
@@ -50,8 +51,12 @@ impl<D> Middleware<D> for PrefsHandler {
         request.origin.read_to_string(&mut body).unwrap();
         println!("Got prefs: {}", body);
         let data: Prefs = json::decode(&body).unwrap();
-        data.save();
-        return response.send("Thanks");
+        if data.is_valid() {
+            data.save();
+            return response.send("");
+        } else {
+            return response.send(status::StatusCode::BadRequest);
+        }
     }
 }
 
