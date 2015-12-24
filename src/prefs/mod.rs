@@ -16,11 +16,10 @@ impl Prefs {
         let result: Prefs = json::decode(&contents).unwrap();
         Ok(result)
     }
-    
+
     pub fn save(&self) -> io::Result<()> {
         let mut file = try!(File::create("config/settings.json"));
-        let contents = json::encode(self).unwrap();
-        try!(file.write_all(contents.as_bytes()));
-        file.sync_data()
+        let contents = json::as_pretty_json(self).indent(2);
+        write!(file, "{}", contents)
     }
 }

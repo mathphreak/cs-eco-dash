@@ -8,3 +8,7 @@
 #fail-icons {
   font-size: 10px;
 }
+
+body > .container:not(#js-loading) {
+  display: none;
+}

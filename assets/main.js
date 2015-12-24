@@ -43,8 +43,27 @@ function update () {
 }
 
 $(function () {
-  $('#settings').click(function () {
-    false
+  $('#js-loading').hide()
+  $('#settings-link').click(function (evt) {
+    $('#settings').show()
+    evt.preventDefault()
+  })
+  $('#settings form').submit(function (evt) {
+    var formdata = $('#settings form').serializeArray()
+    var data = {}
+    formdata.forEach(function (obj) {
+      data[obj.name] = obj.value
+    })
+    data = JSON.stringify(data)
+    $.ajax({
+      type: 'POST',
+      url: '/update-prefs',
+      data: data,
+      dataType: 'json',
+      contentType: 'application/json'
+    })
+    $('#settings').hide()
+    evt.preventDefault()
   })
   update()
   setTimeout(update, 100)
