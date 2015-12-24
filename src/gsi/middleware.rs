@@ -5,19 +5,20 @@ use super::version;
 use super::paths;
 use super::message;
 use super::message::{TakesUpdates, UpdateReason};
+use super::super::prefs::Prefs;
 use std::fs;
 use std::io::Read;
 
-pub struct PostHandler<T> where T: TakesUpdates {
+pub struct GsiDataHandler<T> where T: TakesUpdates {
     state_mutex: Arc<Mutex<T>>
 }
 
-impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates {
+impl<D, T: 'static> Middleware<D> for GsiDataHandler<T> where T: TakesUpdates {
     fn invoke<'a, 'server>(&'a self, request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
             -> MiddlewareResult<'a, D> {
         let mut body = String::new();
         request.origin.read_to_string(&mut body).unwrap();
-        // println!("Got JSON: {}", body);
+        println!("Got JSON: {}", body);
         let data: message::Message = match json::decode(&body) {
             Ok(data) => data,
             Err(err) => {
@@ -32,11 +33,31 @@ impl<D, T: 'static> Middleware<D> for PostHandler<T> where T: TakesUpdates {
     }
 }
 
-impl<T> PostHandler<T> where T: TakesUpdates {
-    pub fn new(state_mutex: Arc<Mutex<T>>) -> PostHandler<T> {
-        PostHandler {
+impl<T> GsiDataHandler<T> where T: TakesUpdates {
+    pub fn new(state_mutex: Arc<Mutex<T>>) -> GsiDataHandler<T> {
+        GsiDataHandler {
             state_mutex: state_mutex
         }
+    }
+}
+
+pub struct PrefsHandler;
+
+impl<D> Middleware<D> for PrefsHandler {
+    fn invoke<'a, 'server>(&'a self, request: &mut Request<'a, 'server, D>, response: Response<'a, D>)
+            -> MiddlewareResult<'a, D> {
+        let mut body = String::new();
+        request.origin.read_to_string(&mut body).unwrap();
+        println!("Got prefs: {}", body);
+        let data: Prefs = json::decode(&body).unwrap();
+        data.save();
+        return response.send("Thanks");
+    }
+}
+
+impl PrefsHandler {
+    pub fn new() -> PrefsHandler {
+        PrefsHandler
     }
 }
 

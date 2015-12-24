@@ -41,6 +41,9 @@ function update() {
 }
 
 $(function() {
+  $("#settings").click(function() {
+    false
+  })
   update()
   setTimeout(update, 100)
 })
