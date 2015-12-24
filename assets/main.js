@@ -18,7 +18,7 @@ function update () {
       })
     }
     if (data.settings && $('#settings').is(':hidden')) {
-      $("#install-path").val(data.settings.csgo_cfg_path)
+      $('#install-path').val(data.settings.csgo_cfg_path)
     }
 
     // hide some stuff
