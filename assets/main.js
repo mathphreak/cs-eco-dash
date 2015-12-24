@@ -17,6 +17,9 @@ function update () {
         $('#recommendations').append($('<li>' + rec + '</li>'))
       })
     }
+    if (data.settings && $('#settings').is(':hidden')) {
+      $("#install-path").val(data.settings.csgo_cfg_path)
+    }
 
     // hide some stuff
     var showInstallConfig = data.gsi.installed !== data.gsi.target

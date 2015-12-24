@@ -2,6 +2,7 @@ extern crate time;
 
 use super::super::gsi::{self, message};
 use super::super::gsi::message::{TakesUpdates, UpdateReason};
+use super::super::prefs::Prefs;
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 use super::equipment::Equipment;
@@ -136,6 +137,9 @@ impl ToJson for State {
         d.insert("gsi".to_string(), self.gsi.to_json());
         d.insert("gamemode".to_string(), self.gamemode.to_json());
         d.insert("map".to_string(), self.map.to_json());
+        if let Ok(prefs) = Prefs::get() {
+            d.insert("settings".to_string(), prefs.to_json());
+        }
         Json::Object(d)
     }
 }

@@ -2,6 +2,8 @@ use std::fs::{self, File};
 use std::io;
 use std::io::prelude::*;
 use rustc_serialize::json;
+use rustc_serialize::json::{Json, ToJson};
+use std::collections::BTreeMap;
 
 #[derive(RustcEncodable, RustcDecodable)]
 pub struct Prefs {
@@ -29,5 +31,13 @@ impl Prefs {
             Ok(data) => data.is_dir(),
             Err(_) => false
         }
+    }
+}
+
+impl ToJson for Prefs {
+    fn to_json(&self) -> Json {
+        let mut d = BTreeMap::new();
+        d.insert("csgo_cfg_path".to_string(), self.csgo_cfg_path.to_json());
+        Json::Object(d)
     }
 }
