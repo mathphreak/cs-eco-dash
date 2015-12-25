@@ -134,6 +134,14 @@ impl<T> convert::From<Result<T, NoTeamError>> for NoTeamError {
     }
 }
 
+pub enum InvSlot {
+    Primary,
+    Secondary,
+    Armor,
+    Grenade,
+    Misc,
+}
+
 impl Equipment {
     fn cost(&self) -> i32 {
         use self::Equipment::*;
@@ -236,10 +244,10 @@ impl Equipment {
                     Some(message::Team::T) => is_t,
                 };
                 if $eqp == Flash {
-                    let count = inventory.iter().filter(|x| **x == Flash).count();
+                    let count = inventory.count(Flash);
                     allowed = allowed && count <= 1;
                 } else {
-                    allowed = allowed && !inventory.contains(&$eqp);
+                    allowed = allowed && !inventory.contains($eqp);
                 }
                 if remaining_money >= cost && allowed {
                     inventory.push($eqp);
@@ -303,5 +311,33 @@ impl Equipment {
         }
 
         Ok(result)
+    }
+
+    pub fn slot(&self) -> InvSlot {
+        use self::Equipment::*;
+        use self::InvSlot::*;
+        match *self {
+            Glock => Secondary,
+            P2000 => Secondary,
+            USPS => Secondary,
+            P250 => Secondary,
+            Deagle => Secondary,
+            Berettas => Secondary,
+            Tec9 => Secondary,
+            FiveSeven => Secondary,
+            CZ75 => Secondary,
+            R8 => Secondary,
+            Vest => Armor,
+            VestHelmet => Armor,
+            Zeus => Misc,
+            Defuse => Misc,
+            Molotov => Grenade,
+            Incendiary => Grenade,
+            Decoy => Grenade,
+            HENade => Grenade,
+            Flash => Grenade,
+            Smoke => Grenade,
+            _ => Primary,
+        }
     }
 }

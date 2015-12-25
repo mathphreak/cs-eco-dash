@@ -20,6 +20,12 @@ function update () {
     if (data.settings && $('#settings').is(':hidden')) {
       $('#install-path').val(data.settings.csgo_cfg_path)
     }
+    $('#inventory').html('')
+    if (data.inventory) {
+      data.inventory.forEach(function (eqp) {
+        $('#inventory').append($('<li>' + eqp + '</li>'))
+      })
+    }
 
     // hide some stuff
     var showInstallConfig = data.gsi.installed !== data.gsi.target

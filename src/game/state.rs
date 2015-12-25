@@ -6,6 +6,7 @@ use super::super::prefs::Prefs;
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 use super::equipment::Equipment;
+use super::inventory::Inventory;
 
 pub struct State {
     last_up: time::Tm,
@@ -14,7 +15,7 @@ pub struct State {
     pub money: i32,
     gsi: gsi::Versions,
     pub won_rounds: Vec<bool>,
-    pub inventory: Vec<Equipment>,
+    pub inventory: Inventory,
     gamemode: message::Mode,
     map: String,
 }
@@ -28,7 +29,7 @@ impl Default for State {
             money: 0,
             gsi: gsi::Versions::new(),
             won_rounds: vec![],
-            inventory: vec![],
+            inventory: Default::default(),
             gamemode: Default::default(),
             map: "".to_string(),
         }
@@ -72,6 +73,13 @@ impl State {
                 Some(state) => {
                     self.in_game = true;
                     self.money = state.money;
+                    if state.helmet && state.armor >= 50 {
+                        self.inventory.push(Equipment::VestHelmet);
+                    } else if state.armor >= 50 {
+                        self.inventory.push(Equipment::Vest);
+                    } else {
+                        self.inventory.remove(Equipment::Vest);
+                    }
                 },
                 None => {
                     self.reset();
@@ -133,6 +141,7 @@ impl ToJson for State {
         if let Ok(recs) = Equipment::recommended(self) {
             d.insert("recommendations".to_string(), recs.to_json());
         }
+        d.insert("inventory".to_string(), self.inventory.to_json());
         d.insert("won_rounds".to_string(), self.won_rounds.to_json());
         d.insert("gsi".to_string(), self.gsi.to_json());
         d.insert("gamemode".to_string(), self.gamemode.to_json());

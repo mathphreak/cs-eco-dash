@@ -13,11 +13,11 @@ pub trait TakesUpdates : Send {
 #[derive(RustcEncodable, RustcDecodable)]
 #[derive(Default, Clone, Copy)]
 pub struct State {
-    armor: u8,
+    pub armor: u8,
     burning: u8,
     flashed: u8,
     health: u8,
-    helmet: bool,
+    pub helmet: bool,
     pub money: i32,
     round_killhs: u8,
     round_kills: u8,
@@ -187,6 +187,63 @@ mod added {
     }
 }
 
+mod previous {
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone, Copy)]
+    pub struct State {
+        pub armor: Option<u8>,
+        burning: Option<u8>,
+        flashed: Option<u8>,
+        health: Option<u8>,
+        pub helmet: Option<bool>,
+        pub money: Option<i32>,
+        round_killhs: Option<u8>,
+        round_kills: Option<u8>,
+        smoked: Option<u8>
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone)]
+    pub struct Provider {
+        pub steamid: Option<String>,
+        pub timestamp: Option<u32>,
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Clone, Copy)]
+    #[allow(non_camel_case_types)]
+    pub enum Activity {
+        menu,
+        playing,
+        textinput,
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Clone, Copy)]
+    #[derive(PartialEq)]
+    #[allow(non_camel_case_types)]
+    pub enum Team {
+        CT,
+        T,
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone)]
+    pub struct Player {
+        pub steamid: Option<String>,
+        pub team: Option<Team>,
+        pub activity: Option<Activity>,
+        pub state: Option<State>,
+    }
+
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone)]
+    pub struct Message {
+        pub provider: Option<Provider>,
+        pub player: Option<Player>,
+    }
+}
+
 #[derive(RustcEncodable, RustcDecodable)]
 #[derive(Default, Clone)]
 pub struct Message {
@@ -195,4 +252,5 @@ pub struct Message {
     pub player: Player,
     pub round: Option<round::Round>,
     pub added: Option<added::Added>,
+    pub previously: Option<previous::Message>,
 }
