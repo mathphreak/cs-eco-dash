@@ -1,7 +1,7 @@
 extern crate time;
 
 mod equipment;
-mod inventory;
+pub mod inventory;
 mod state;
 
 pub use self::state::State;

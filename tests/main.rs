@@ -10,7 +10,9 @@ fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, ta
     state.money = money;
     state.team = Some(team);
     state.won_rounds = history;
-    state.inventory = inventory.clone();
+    for eqp in inventory.clone() {
+        state.inventory.push(eqp);
+    }
     let recommendation = Equipment::recommended(&state).unwrap();
     for owned in &inventory {
         assert!(!target.contains(owned));
