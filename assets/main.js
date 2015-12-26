@@ -30,7 +30,7 @@ function update () {
     // hide some stuff
     var showInstallConfig = data.gsi.installed !== data.gsi.target
     var showFail = !data.up
-    var inGame = data.in_game
+    var inGame = data.up && data.in_game
     $('#gsi-install-config').toggle(showInstallConfig)
     $('#csgo-down').toggle(showFail)
     $('#launch-game').toggle(showFail)
