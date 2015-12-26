@@ -16,7 +16,7 @@ pub struct State {
     pub armor: u8,
     burning: u8,
     flashed: u8,
-    health: u8,
+    health: u16,
     pub helmet: bool,
     pub money: i32,
     round_killhs: u8,
@@ -68,6 +68,26 @@ impl ToJson for Team {
     }
 }
 
+mod weapons {
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone)]
+    pub struct Weapon {
+        pub name: String,
+    }
+    
+    #[derive(RustcEncodable, RustcDecodable)]
+    #[derive(Default, Clone)]
+    pub struct Weapons {
+        pub weapon_0: Option<Weapon>,
+        pub weapon_1: Option<Weapon>,
+        pub weapon_2: Option<Weapon>,
+        pub weapon_3: Option<Weapon>,
+        pub weapon_4: Option<Weapon>,
+        pub weapon_5: Option<Weapon>,
+        pub weapon_6: Option<Weapon>,
+    }
+}
+
 #[derive(RustcEncodable, RustcDecodable)]
 #[derive(Default, Clone)]
 pub struct Player {
@@ -75,6 +95,7 @@ pub struct Player {
     pub team: Option<Team>,
     pub activity: Option<Activity>,
     pub state: Option<State>,
+    pub weapons: Option<weapons::Weapons>,
 }
 
 mod round {
@@ -194,7 +215,7 @@ mod previous {
         pub armor: Option<u8>,
         burning: Option<u8>,
         flashed: Option<u8>,
-        health: Option<u8>,
+        health: Option<u16>,
         pub helmet: Option<bool>,
         pub money: Option<i32>,
         round_killhs: Option<u8>,

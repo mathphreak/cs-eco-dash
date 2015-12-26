@@ -51,23 +51,13 @@ impl Inventory {
             Misc => self.misc.push(eqp),
         }
     }
-
-    pub fn remove(&mut self, eqp: Equipment) {
-        use super::equipment::InvSlot::*;
-        let slot = eqp.slot();
-        let data = match slot {
-            Primary => {self.primary = None; return;},
-            Secondary => {self.secondary = None; return;},
-            Armor => {self.armor = None; return;},
-            Grenade => &mut self.grenades,
-            Misc => &mut self.misc,
-        };
-        let index = data.iter().position(|&x| x == eqp);
-        let index = match index {
-            Some(i) => i,
-            None => return
-        };
-        data.remove(index);
+    
+    pub fn clear(&mut self) {
+        self.primary = None;
+        self.secondary = None;
+        self.armor = None;
+        self.grenades.clear();
+        self.misc.clear();
     }
     
     pub fn count(&self, eqp: Equipment) -> i32 {

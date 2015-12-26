@@ -54,6 +54,7 @@ pub enum Equipment {
     HENade,
     Flash,
     Smoke,
+    Knife,
 }
 
 impl fmt::Display for Equipment {
@@ -103,6 +104,7 @@ impl fmt::Display for Equipment {
             HENade => "HE grenade",
             Flash => "Flashbang",
             Smoke => "Smoke",
+            Knife => "Knife",
         }).to_string())
     }
 }
@@ -110,6 +112,63 @@ impl fmt::Display for Equipment {
 impl ToJson for Equipment {
     fn to_json(&self) -> Json {
         Json::String(self.to_string())
+    }
+}
+
+impl From<String> for Equipment {
+    fn from(s: String) -> Equipment {
+        use self::Equipment::*;
+        match &*s {
+            "weapon_glock" => Glock,
+            "weapon_hkp2000" => P2000,
+            "weapon_usp_silencer" => USPS,
+            "weapon_p250" => P250,
+            "weapon_deagle" => Deagle,
+            "weapon_elite" => Berettas,
+            "weapon_tec9" => Tec9,
+            "weapon_fiveseven" => FiveSeven,
+            "weapon_cz75a" => CZ75,
+            "weapon_revolver" => R8,
+            "weapon_nova" => Nova,
+            "weapon_xm1014" => XM1014,
+            "weapon_sawedoff" => SawedOff,
+            "weapon_mag7" => MAG7,
+            "weapon_mac10" => MAC10,
+            "weapon_mp9" => MP9,
+            "weapon_mp7" => MP7,
+            "weapon_ump45" => UMP45,
+            "weapon_bizon" => PPBizon,
+            "weapon_p90" => P90,
+            "weapon_galilar" => GalilAR,
+            "weapon_famas" => FAMAS,
+            "weapon_ak47" => AK47,
+            "weapon_22" => M4A4,
+            "weapon_m4a1_silencer" => M4A1S,
+            "weapon_ssg08" => SSG08,
+            "weapon_sg556" => SG553,
+            "weapon_aug" => AUG,
+            "weapon_awp" => AWP,
+            "weapon_g3gs1" => G3GS1,
+            "weapon_scar20" => SCAR20,
+            "weapon_m249" => M249,
+            "weapon_negev" => Negev,
+            "weapon_32" => Vest,
+            "weapon_33" => VestHelmet,
+            "weapon_taser" => Zeus,
+            "weapon_35" => Defuse,
+            "weapon_36" => Molotov,
+            "weapon_37" => Incendiary,
+            "weapon_38" => Decoy,
+            "weapon_39" => HENade,
+            "weapon_40" => Flash,
+            "weapon_41" => Smoke,
+            "weapon_knife" => Knife,
+            "weapon_knife_t" => Knife,
+            _ => {
+                println!("Unknown equipment: {}", s);
+                Knife
+            },
+        }
     }
 }
 
@@ -189,6 +248,7 @@ impl Equipment {
             HENade => 300,
             Flash => 200,
             Smoke => 300,
+            Knife => 0,
         }
     }
 

@@ -69,7 +69,8 @@ impl State {
         let ref provider = message.provider;
         let ref player = message.player;
         if provider.steamid == player.steamid {
-            match player.state {
+            self.inventory.clear();
+            match player.clone().state {
                 Some(state) => {
                     self.in_game = true;
                     self.money = state.money;
@@ -77,12 +78,33 @@ impl State {
                         self.inventory.push(Equipment::VestHelmet);
                     } else if state.armor >= 50 {
                         self.inventory.push(Equipment::Vest);
-                    } else {
-                        self.inventory.remove(Equipment::Vest);
                     }
                 },
                 None => {
                     self.reset();
+                }
+            }
+            if let Some(weapons) = player.clone().weapons {
+                if let Some(weapon_0) = weapons.weapon_0 {
+                    self.inventory.push(Equipment::from(weapon_0.name))
+                }
+                if let Some(weapon_1) = weapons.weapon_1 {
+                    self.inventory.push(Equipment::from(weapon_1.name))
+                }
+                if let Some(weapon_2) = weapons.weapon_2 {
+                    self.inventory.push(Equipment::from(weapon_2.name))
+                }
+                if let Some(weapon_3) = weapons.weapon_3 {
+                    self.inventory.push(Equipment::from(weapon_3.name))
+                }
+                if let Some(weapon_4) = weapons.weapon_4 {
+                    self.inventory.push(Equipment::from(weapon_4.name))
+                }
+                if let Some(weapon_5) = weapons.weapon_5 {
+                    self.inventory.push(Equipment::from(weapon_5.name))
+                }
+                if let Some(weapon_6) = weapons.weapon_6 {
+                    self.inventory.push(Equipment::from(weapon_6.name))
                 }
             }
             if let Some(team) = player.team {
