@@ -41,3 +41,11 @@ impl ToJson for Prefs {
         Json::Object(d)
     }
 }
+
+impl Default for Prefs {
+    fn default() -> Prefs {
+        Prefs {
+            csgo_cfg_path: "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\csgo\\cfg".to_string(),
+        }
+    }
+}

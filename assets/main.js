@@ -28,7 +28,9 @@ function update () {
     }
 
     // hide some stuff
+    var settingsError = data.gsi.installed === 'ERROR'
     var showInstallConfig = data.gsi.installed !== data.gsi.target
+    showInstallConfig = showInstallConfig && !settingsError
     var showFail = !data.up
     var inGame = data.up && data.in_game
     $('#gsi-install-config').toggle(showInstallConfig)
@@ -38,6 +40,10 @@ function update () {
     $('#out-of-game').toggle(!inGame)
     $('#in-game').toggle(inGame)
     $('#game-status').toggle(inGame)
+    // don't hide the settings if there is no error, just show them if there is
+    if (settingsError) {
+      $('#settings').show()
+    }
 
     setTimeout(update, 100)
   }).fail(function () {

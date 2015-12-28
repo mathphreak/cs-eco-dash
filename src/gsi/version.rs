@@ -28,8 +28,12 @@ impl Installed {
         if (self.last_check + time::Duration::minutes(1)).gt(&time::now()) {
             return self.last_result.clone();
         } else {
-            self.last_check = time::now();
-            if fs::metadata(paths::get_csgo_cfg()).unwrap().is_dir() {
+            let valid_path = match fs::metadata(paths::get_csgo_cfg()) {
+                Ok(m) => m.is_dir(),
+                Err(_) => false,
+            };
+            if valid_path {
+                self.last_check = time::now();
                 for entry in fs::read_dir(paths::get_csgo_cfg()).unwrap() {
                     let entry = entry.unwrap();
                     let name = entry.path();
@@ -43,9 +47,12 @@ impl Installed {
                         return self.last_result.clone();
                     }
                 }
+                self.last_result = "NONE".to_string();
+                return self.last_result.clone();
+            } else {
+                self.last_result = "ERROR".to_string();
+                return self.last_result.clone();
             }
-            self.last_result = "NONE".to_string();
-            return self.last_result.clone();
         }
     }
 }
