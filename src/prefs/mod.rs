@@ -22,7 +22,7 @@ impl Prefs {
     pub fn save(&self) -> io::Result<()> {
         let mut file = try!(File::create("config/settings.json"));
         let contents = json::as_pretty_json(self).indent(2);
-        write!(file, "{}", contents)
+        write!(file, "{}\n", contents)
     }
 
     pub fn is_valid(&self) -> bool {
