@@ -74,7 +74,7 @@ mod weapons {
     pub struct Weapon {
         pub name: String,
     }
-    
+
     #[derive(RustcEncodable, RustcDecodable)]
     #[derive(Default, Clone)]
     pub struct Weapons {
@@ -85,6 +85,7 @@ mod weapons {
         pub weapon_4: Option<Weapon>,
         pub weapon_5: Option<Weapon>,
         pub weapon_6: Option<Weapon>,
+        pub weapon_7: Option<Weapon>,
     }
 }
 

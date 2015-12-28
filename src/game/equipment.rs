@@ -40,7 +40,7 @@ pub enum Equipment {
     SG553,
     AUG,
     AWP,
-    G3GS1,
+    G3SG1,
     SCAR20,
     M249,
     Negev,
@@ -55,6 +55,7 @@ pub enum Equipment {
     Flash,
     Smoke,
     Knife,
+    C4,
 }
 
 impl fmt::Display for Equipment {
@@ -90,7 +91,7 @@ impl fmt::Display for Equipment {
             SG553 => "SG 553",
             AUG => "AUG",
             AWP => "AWP",
-            G3GS1 => "G3GS1",
+            G3SG1 => "G3SG1",
             SCAR20 => "SCAR-20",
             M249 => "M249",
             Negev => "Negev",
@@ -105,6 +106,7 @@ impl fmt::Display for Equipment {
             Flash => "Flashbang",
             Smoke => "Smoke",
             Knife => "Knife",
+            C4 => "C4",
         }).to_string())
     }
 }
@@ -142,28 +144,26 @@ impl From<String> for Equipment {
             "weapon_galilar" => GalilAR,
             "weapon_famas" => FAMAS,
             "weapon_ak47" => AK47,
-            "weapon_22" => M4A4,
+            "weapon_m4a1" => M4A4,
             "weapon_m4a1_silencer" => M4A1S,
             "weapon_ssg08" => SSG08,
             "weapon_sg556" => SG553,
             "weapon_aug" => AUG,
             "weapon_awp" => AWP,
-            "weapon_g3gs1" => G3GS1,
+            "weapon_g3sg1" => G3SG1,
             "weapon_scar20" => SCAR20,
             "weapon_m249" => M249,
             "weapon_negev" => Negev,
-            "weapon_32" => Vest,
-            "weapon_33" => VestHelmet,
             "weapon_taser" => Zeus,
-            "weapon_35" => Defuse,
-            "weapon_36" => Molotov,
-            "weapon_37" => Incendiary,
-            "weapon_38" => Decoy,
-            "weapon_39" => HENade,
-            "weapon_40" => Flash,
-            "weapon_41" => Smoke,
+            "weapon_molotov" => Molotov,
+            "weapon_incgrenade" => Incendiary,
+            "weapon_decoy" => Decoy,
+            "weapon_hegrenade" => HENade,
+            "weapon_flashbang" => Flash,
+            "weapon_smokegrenade" => Smoke,
             "weapon_knife" => Knife,
             "weapon_knife_t" => Knife,
+            "weapon_c4" => C4,
             _ => {
                 println!("Unknown equipment: {}", s);
                 Knife
@@ -199,6 +199,7 @@ pub enum InvSlot {
     Armor,
     Grenade,
     Misc,
+    Trash,
 }
 
 impl Equipment {
@@ -234,7 +235,7 @@ impl Equipment {
             SG553 => 3000,
             AUG => 3300,
             AWP => 4750,
-            G3GS1 => 5000,
+            G3SG1 => 5000,
             SCAR20 => 5000,
             M249 => 5200,
             Negev => 5700,
@@ -249,6 +250,7 @@ impl Equipment {
             Flash => 200,
             Smoke => 300,
             Knife => 0,
+            C4 => 0,
         }
     }
 
@@ -272,11 +274,12 @@ impl Equipment {
             M4A1S => Some(CT),
             SG553 => Some(T),
             AUG => Some(CT),
-            G3GS1 => Some(T),
+            G3SG1 => Some(T),
             SCAR20 => Some(CT),
             Defuse => Some(CT),
             Molotov => Some(T),
             Incendiary => Some(CT),
+            C4 => Some(T),
             _ => None
         }
     }
@@ -397,6 +400,8 @@ impl Equipment {
             HENade => Grenade,
             Flash => Grenade,
             Smoke => Grenade,
+            Knife => Trash,
+            C4 => Trash,
             _ => Primary,
         }
     }

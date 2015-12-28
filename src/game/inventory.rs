@@ -49,9 +49,10 @@ impl Inventory {
             Armor => self.armor = Some(eqp),
             Grenade => self.grenades.push(eqp),
             Misc => self.misc.push(eqp),
+            Trash => {},
         }
     }
-    
+
     pub fn clear(&mut self) {
         self.primary = None;
         self.secondary = None;
@@ -59,13 +60,13 @@ impl Inventory {
         self.grenades.clear();
         self.misc.clear();
     }
-    
+
     pub fn count(&self, eqp: Equipment) -> i32 {
         let grenade_count = self.grenades.iter().filter(|x| **x == eqp).count();
         let misc_count = self.misc.iter().filter(|x| **x == eqp).count();
         return (grenade_count + misc_count) as i32;
     }
-    
+
     pub fn contains(&self, eqp: Equipment) -> bool {
         use super::equipment::InvSlot::*;
         match eqp.slot() {
@@ -74,6 +75,7 @@ impl Inventory {
             Armor => self.armor == Some(eqp),
             Grenade => self.grenades.contains(&eqp),
             Misc => self.misc.contains(&eqp),
+            Trash => true,
         }
     }
 }

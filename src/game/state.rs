@@ -106,6 +106,9 @@ impl State {
                 if let Some(weapon_6) = weapons.weapon_6 {
                     self.inventory.push(Equipment::from(weapon_6.name))
                 }
+                if let Some(weapon_7) = weapons.weapon_7 {
+                    self.inventory.push(Equipment::from(weapon_7.name))
+                }
             }
             if let Some(team) = player.team {
                 self.team = Some(team);
