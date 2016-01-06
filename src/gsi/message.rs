@@ -73,6 +73,7 @@ mod weapons {
     #[derive(Default, Clone)]
     pub struct Weapon {
         pub name: String,
+        pub ammo_reserve: Option<i32>,
     }
 
     #[derive(RustcEncodable, RustcDecodable)]

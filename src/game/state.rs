@@ -85,31 +85,30 @@ impl State {
                     self.reset();
                 }
             }
+
             if let Some(weapons) = player.clone().weapons {
-                if let Some(weapon_0) = weapons.weapon_0 {
-                    self.inventory.push(Equipment::from(weapon_0.name))
+                macro_rules! handle {
+                    ( $weapon:ident ) => {{
+                        if let Some(ref weapon) = weapons.$weapon {
+                            let eqp = Equipment::from(weapon.clone().name);
+                            self.inventory.push(eqp);
+                            if let Some(n) = weapon.clone().ammo_reserve {
+                                if n == 2 && eqp == Equipment::Flash {
+                                    self.inventory.push(eqp);
+                                }
+                            }
+                        }
+                    }}
                 }
-                if let Some(weapon_1) = weapons.weapon_1 {
-                    self.inventory.push(Equipment::from(weapon_1.name))
-                }
-                if let Some(weapon_2) = weapons.weapon_2 {
-                    self.inventory.push(Equipment::from(weapon_2.name))
-                }
-                if let Some(weapon_3) = weapons.weapon_3 {
-                    self.inventory.push(Equipment::from(weapon_3.name))
-                }
-                if let Some(weapon_4) = weapons.weapon_4 {
-                    self.inventory.push(Equipment::from(weapon_4.name))
-                }
-                if let Some(weapon_5) = weapons.weapon_5 {
-                    self.inventory.push(Equipment::from(weapon_5.name))
-                }
-                if let Some(weapon_6) = weapons.weapon_6 {
-                    self.inventory.push(Equipment::from(weapon_6.name))
-                }
-                if let Some(weapon_7) = weapons.weapon_7 {
-                    self.inventory.push(Equipment::from(weapon_7.name))
-                }
+
+                handle!(weapon_0);
+                handle!(weapon_1);
+                handle!(weapon_2);
+                handle!(weapon_3);
+                handle!(weapon_4);
+                handle!(weapon_5);
+                handle!(weapon_6);
+                handle!(weapon_7);
             }
             if let Some(team) = player.team {
                 self.team = Some(team);
