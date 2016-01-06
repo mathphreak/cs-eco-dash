@@ -1,9 +1,6 @@
 use rustc_serialize::json::{ToJson, Json};
 use super::super::gsi::message;
-use super::State;
-use std::error::Error;
 use std::fmt;
-use std::convert;
 use std::string::ToString;
 
 #[allow(dead_code)]
@@ -172,27 +169,6 @@ impl From<String> for Equipment {
     }
 }
 
-#[derive(Debug, Default)]
-pub struct NoTeamError;
-
-impl fmt::Display for NoTeamError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl Error for NoTeamError {
-    fn description(&self) -> &str {
-        "No team provided"
-    }
-}
-
-impl<T> convert::From<Result<T, NoTeamError>> for NoTeamError {
-    fn from(_: Result<T, NoTeamError>) -> Self {
-        NoTeamError
-    }
-}
-
 pub enum InvSlot {
     Primary,
     Secondary,
@@ -202,8 +178,15 @@ pub enum InvSlot {
     Trash,
 }
 
+pub enum Tier {
+    Decent,
+    Acceptable,
+    EcoOnly,
+    WhyEven,
+}
+
 impl Equipment {
-    fn cost(&self) -> i32 {
+    pub fn cost(&self) -> i32 {
         use self::Equipment::*;
         match *self {
             Glock => 0,
@@ -254,7 +237,7 @@ impl Equipment {
         }
     }
 
-    fn restriction(&self) -> Option<message::Team> {
+    pub fn restriction(&self) -> Option<message::Team> {
         use self::Equipment::*;
         use super::super::gsi::message::Team::*;
         match *self {
@@ -284,98 +267,6 @@ impl Equipment {
         }
     }
 
-    #[allow(unused_assignments)]
-    pub fn recommended(state: &State) -> Result<Vec<Equipment>, NoTeamError> {
-        use self::Equipment::*;
-        let mut result = vec![];
-        let mut remaining_money: i64 = state.money as i64;
-        let team = match state.team {
-            Some(team) => team,
-            None => return Err(Default::default())
-        };
-        let is_ct = team == message::Team::CT;
-        let is_t = team == message::Team::T;
-        let next_round_loss_reward = state.min_next_reward() as i64;
-        let mut inventory = state.inventory.clone();
-
-        macro_rules! check {
-            ( $eqp:expr ) => {{
-                let cost = $eqp.cost() as i64;
-                let mut allowed = match $eqp.restriction() {
-                    None => true,
-                    Some(message::Team::CT) => is_ct,
-                    Some(message::Team::T) => is_t,
-                };
-                if $eqp == Flash {
-                    let count = inventory.count(Flash);
-                    allowed = allowed && count <= 1;
-                } else {
-                    allowed = allowed && !inventory.contains($eqp);
-                }
-                if remaining_money >= cost && allowed {
-                    inventory.push($eqp);
-                    result.push($eqp);
-                    remaining_money -= cost;
-                }
-            }};
-        }
-
-        // full buy
-        if is_ct && remaining_money >= 5000 {
-            check!(M4A1S);
-            check!(P250);
-            check!(VestHelmet);
-            check!(Defuse);
-            check!(Smoke);
-            check!(Flash);
-            check!(Flash);
-            check!(Incendiary);
-        } else if is_t && remaining_money >= 5000 {
-            check!(AK47);
-            check!(Tec9);
-            check!(VestHelmet);
-            check!(Smoke);
-            check!(Flash);
-            check!(Flash);
-            check!(Molotov);
-        } else {
-            if remaining_money + next_round_loss_reward >= 5000 {
-                remaining_money -= 5000 - next_round_loss_reward;
-                check!(M4A1S);
-                check!(AK47);
-                check!(MP7);
-                if remaining_money >= 1150 && is_t {
-                    check!(Vest);
-                    check!(Tec9);
-                }
-                if remaining_money >= 1000 {
-                    check!(VestHelmet);
-                    if remaining_money >= 500 && is_t {
-                        check!(Tec9);
-                    }
-                }
-                check!(Vest);
-                check!(Tec9);
-                check!(P250);
-            } else {
-                // eco
-                check!(MP7);
-                // equipment
-                check!(Vest);
-                check!(Defuse);
-
-                // grenades
-                check!(Smoke);
-                check!(Flash);
-                check!(Flash);
-                check!(Molotov);
-                check!(Incendiary);
-            }
-        }
-
-        Ok(result)
-    }
-
     pub fn slot(&self) -> InvSlot {
         use self::Equipment::*;
         use self::InvSlot::*;
@@ -403,6 +294,58 @@ impl Equipment {
             Knife => Trash,
             C4 => Trash,
             _ => Primary,
+        }
+    }
+
+    pub fn tier(&self) -> Tier {
+        use self::Equipment::*;
+        use self::Tier::*;
+        match *self {
+            Glock => Acceptable,
+            P2000 => Decent,
+            USPS => Decent,
+            P250 => Decent,
+            Deagle => Decent,
+            Berettas => WhyEven,
+            Tec9 => Decent,
+            FiveSeven => Decent,
+            CZ75 => Decent,
+            R8 => Decent,
+            Nova => EcoOnly,
+            XM1014 => EcoOnly,
+            SawedOff => WhyEven,
+            MAG7 => EcoOnly,
+            MAC10 => EcoOnly,
+            MP9 => EcoOnly,
+            MP7 => EcoOnly,
+            UMP45 => EcoOnly,
+            PPBizon => EcoOnly,
+            P90 => Decent,
+            GalilAR => Acceptable,
+            FAMAS => Acceptable,
+            AK47 => Decent,
+            M4A4 => Decent,
+            M4A1S => Decent,
+            SSG08 => Decent,
+            SG553 => Decent,
+            AUG => Decent,
+            AWP => Decent,
+            G3SG1 => WhyEven,
+            SCAR20 => WhyEven,
+            M249 => WhyEven,
+            Negev => WhyEven,
+            Vest => Acceptable,
+            VestHelmet => Decent,
+            Zeus => WhyEven,
+            Defuse => Decent,
+            Molotov => Decent,
+            Incendiary => Decent,
+            Decoy => WhyEven,
+            HENade => Decent,
+            Flash => Decent,
+            Smoke => Decent,
+            Knife => Decent,
+            C4 => Decent,
         }
     }
 }

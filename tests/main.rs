@@ -3,6 +3,8 @@ extern crate cs_eco_dash;
 use cs_eco_dash::gsi::message::Team::{self, CT, T};
 use cs_eco_dash::game::State;
 use cs_eco_dash::game::Equipment;
+use cs_eco_dash::game::Strategy;
+use cs_eco_dash::game::Recommendation;
 use cs_eco_dash::game::Equipment::*;
 
 fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, target: Vec<Equipment>) {
@@ -13,7 +15,11 @@ fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, ta
     for eqp in inventory.clone() {
         state.inventory.push(eqp);
     }
-    let recommendation = Equipment::recommended(&state).unwrap();
+    let recommendations = Strategy::recommended(&state).unwrap();
+    let recommendation: Vec<Equipment> = recommendations.iter().map(|x| match *x {
+        Recommendation::Strong(e) => e,
+        Recommendation::Weak(e) => e,
+    }).collect();
     for owned in &inventory {
         assert!(!target.contains(owned));
         assert!(!recommendation.contains(owned));

@@ -7,6 +7,7 @@ use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 use super::equipment::Equipment;
 use super::inventory::Inventory;
+use super::strategy::Strategy;
 
 pub struct State {
     last_up: time::Tm,
@@ -163,7 +164,7 @@ impl ToJson for State {
         if let Some(ref team) = self.team {
             d.insert("team".to_string(), team.to_json());
         }
-        if let Ok(recs) = Equipment::recommended(self) {
+        if let Ok(recs) = Strategy::recommended(self) {
             d.insert("recommendations".to_string(), recs.to_json());
         }
         d.insert("inventory".to_string(), self.inventory.to_json());
