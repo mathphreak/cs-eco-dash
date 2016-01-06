@@ -12,10 +12,10 @@ git clone https://github.com/mathphreak/cs-eco-dash.git
 cargo build --release
 ```
 
-Then run `target/release/cs-eco-dash`.
+Then run `target/release/cs-eco-dash`. This will (ideally) launch a Web browser
+pointed at `localhost:3000`.
 
-Point a Web browser to `localhost:3000` and press the "Install/Update" button if
-it's visible.
+Press the "Install/Update" button if it's visible.
 
 Launch CS:GO. Keep that Web browser open in a second monitor, or close it and open `localhost:3000` in the Steam overlay.
 
