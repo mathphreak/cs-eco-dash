@@ -4,10 +4,10 @@ use cs_eco_dash::gsi::message::Team::{self, CT, T};
 use cs_eco_dash::game::State;
 use cs_eco_dash::game::Equipment;
 use cs_eco_dash::game::Strategy;
-use cs_eco_dash::game::Recommendation;
+use cs_eco_dash::game::Recommendation::{self, Strong, Weak};
 use cs_eco_dash::game::Equipment::*;
 
-fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, target: Vec<Equipment>) {
+fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, target: Vec<Recommendation>) {
     let mut state: State = Default::default();
     state.money = money;
     state.team = Some(team);
@@ -16,15 +16,13 @@ fn run(money: i32, team: Team, history: Vec<bool>, inventory: Vec<Equipment>, ta
         state.inventory.push(eqp);
     }
     let recommendations = Strategy::recommended(&state).unwrap();
-    let recommendation: Vec<Equipment> = recommendations.iter().map(|x| match *x {
-        Recommendation::Strong(e) => e,
-        Recommendation::Weak(e) => e,
-    }).collect();
     for owned in &inventory {
-        assert!(!target.contains(owned));
-        assert!(!recommendation.contains(owned));
+        assert!(!target.contains(&Strong(*owned)));
+        assert!(!target.contains(&Weak(*owned)));
+        assert!(!recommendations.contains(&Strong(*owned)));
+        assert!(!recommendations.contains(&Weak(*owned)));
     }
-    assert_eq!(target, recommendation);
+    assert_eq!(target, recommendations);
 }
 
 #[test]
@@ -32,12 +30,12 @@ fn recommends_full_buy_when_rich() {
     run(16000, CT,
         vec![],
         vec![],
-        vec![M4A1S, P250, VestHelmet, Defuse, Smoke, Flash, Flash, Incendiary]);
+        vec![Strong(M4A1S), Strong(P250), Strong(VestHelmet), Strong(Defuse), Strong(Smoke), Strong(Flash), Strong(Flash), Strong(Incendiary)]);
 
     run(16000, T,
         vec![],
         vec![],
-        vec![AK47, Tec9, VestHelmet, Smoke, Flash, Flash, Molotov]);
+        vec![Strong(AK47), Strong(Tec9), Strong(VestHelmet), Strong(Smoke), Strong(Flash), Strong(Flash), Strong(Molotov)]);
 }
 
 #[test]
@@ -45,7 +43,7 @@ fn ct_full_buy_valid() {
     run(5000, CT,
         vec![],
         vec![],
-        vec![M4A1S, P250, VestHelmet, Defuse, Flash]);
+        vec![Strong(M4A1S), Strong(P250), Strong(VestHelmet), Strong(Defuse), Strong(Flash)]);
 }
 
 #[test]
@@ -53,7 +51,7 @@ fn t_full_buy_valid() {
     run(5000, T,
         vec![],
         vec![],
-        vec![AK47, Tec9, VestHelmet, Smoke, Flash, Flash]);
+        vec![Strong(AK47), Strong(Tec9), Strong(VestHelmet), Strong(Smoke), Strong(Flash), Strong(Flash)]);
 }
 
 #[test]
@@ -74,7 +72,7 @@ fn recommends_t_armor_tec9_when_close() {
     run(4750, T,
         vec![],
         vec![],
-        vec![Vest, Tec9]);
+        vec![Strong(Vest), Strong(Tec9)]);
 }
 
 #[test]
@@ -90,7 +88,7 @@ fn recommends_eco_when_broke() {
     run(1800, CT,
         vec![],
         vec![],
-        vec![MP7])
+        vec![Strong(MP7)])
 }
 
 #[test]
@@ -99,4 +97,20 @@ fn recommends_nothing_when_fully_equipped() {
         vec![],
         vec![M4A1S, P250, VestHelmet, Defuse, Smoke, Flash, Flash, Incendiary],
         vec![])
+}
+
+#[test]
+fn recommends_ditching_negev() {
+    run(16000, CT,
+        vec![],
+        vec![Negev, P250, VestHelmet, Defuse, Smoke, Flash, Flash, Incendiary],
+        vec![Strong(M4A1S)])
+}
+
+#[test]
+fn weakly_recommends_m4_when_holding_ak_as_ct() {
+    run(16000, CT,
+        vec![],
+        vec![AK47, P250, VestHelmet, Defuse, Smoke, Flash, Flash, Incendiary],
+        vec![Weak(M4A1S)])
 }

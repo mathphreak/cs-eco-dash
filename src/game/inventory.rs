@@ -78,4 +78,16 @@ impl Inventory {
             Trash => true,
         }
     }
+
+    pub fn replaced_item(&self, eqp: Equipment) -> Option<Equipment> {
+        use super::equipment::InvSlot::*;
+        match eqp.slot() {
+            Primary => self.primary,
+            Secondary => self.secondary,
+            Armor => self.armor,
+            Grenade => None,
+            Misc => None,
+            Trash => None,
+        }
+    }
 }

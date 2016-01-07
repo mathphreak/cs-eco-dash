@@ -2,6 +2,7 @@ use rustc_serialize::json::{ToJson, Json};
 use super::super::gsi::message;
 use std::fmt;
 use std::string::ToString;
+use std::cmp;
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -178,11 +179,31 @@ pub enum InvSlot {
     Trash,
 }
 
+#[derive(PartialEq)]
 pub enum Tier {
     Decent,
     Acceptable,
     EcoOnly,
     WhyEven,
+}
+
+impl PartialOrd for Tier {
+    fn partial_cmp(&self, other: &Tier) -> Option<cmp::Ordering> {
+        use self::Tier::*;
+        let this_val = match *self {
+            Decent => 4,
+            Acceptable => 3,
+            EcoOnly => 2,
+            WhyEven => 1,
+        };
+        let other_val = match *other {
+            Decent => 4,
+            Acceptable => 3,
+            EcoOnly => 2,
+            WhyEven => 1,
+        };
+        this_val.partial_cmp(&other_val)
+    }
 }
 
 impl Equipment {

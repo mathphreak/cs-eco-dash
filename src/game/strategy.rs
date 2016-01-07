@@ -90,9 +90,20 @@ impl Strategy {
                 } else {
                     allowed = allowed && !inventory.contains($eqp);
                 }
+                let mut weak = false;
+                let this_tier = $eqp.tier();
+                if let Some(old) = inventory.replaced_item($eqp) {
+                    let old_tier = old.tier();
+                    allowed = allowed && this_tier >= old_tier;
+                    weak = this_tier == old_tier;
+                }
                 if *remaining_money >= cost && allowed {
                     inventory.push($eqp);
-                    result.push(Strong($eqp));
+                    if weak {
+                        result.push(Weak($eqp));
+                    } else {
+                        result.push(Strong($eqp));
+                    }
                     *remaining_money -= cost;
                 }
             }};
